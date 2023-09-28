@@ -13,14 +13,7 @@ responses (i.e. the number of cluster elements with the outcome of interest)
 for each cluster.
 }
 \details{
-\tabular{ll}{ 
-Package: \tab CorrBin\cr 
-Type: \tab Package\cr 
-Version: \tab 1.5\cr
-Date: \tab 2014-12-18\cr 
-License: \tab GPL 2\cr 
-LazyLoad: \tab yes\cr
-} 
+
 \itemize{ \item The \code{\link{CBData}/\link{CMData}} and \code{\link{read.CBData}/\link{read.CMData}}
 functions create a `CBData' or `CMData' object used by the analysis functions.  
 \item \code{\link{ran.CBData}} and \code{\link{ran.CMData}} can be used to generate random 
