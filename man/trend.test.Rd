@@ -4,8 +4,13 @@
 \alias{trend.test}
 \title{Test for increasing trend with correlated binary data}
 \usage{
-trend.test(cbdata, test = c("RS", "GEE", "GEEtrend", "GEEall", "SO"),
-  exact = test == "SO", R = 100, control = soControl())
+trend.test(
+  cbdata,
+  test = c("RS", "GEE", "GEEtrend", "GEEall", "SO"),
+  exact = test == "SO",
+  R = 100,
+  control = soControl()
+)
 }
 \arguments{
 \item{cbdata}{a \code{\link{CBData}} object}

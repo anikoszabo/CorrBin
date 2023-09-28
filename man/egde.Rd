@@ -23,7 +23,7 @@ number of fetal malformation and fetal death.
   }
 }
 \source{
-Krewski, D., Zhu, Y. \& Fung, K. (1995). Statistical analysis of overdispersed multinomial data from 
+Krewski, D., Zhu, Y., and Fung, K. (1995). Statistical analysis of overdispersed multinomial data from 
 developmental toxicity studies. In \emph{Statistics in Toxicology}, Ed. B. Morgan, pp.\ 151--179.  New York: Oxford University Press.
 }
 \examples{

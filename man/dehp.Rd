@@ -8,7 +8,7 @@ Pregnant CD-1 mice were randomly assigned to receive 0, 250, 500, 1000, or 1500 
 during gestational days 0-17. The uterine contents of the mice were examined for toxicity endpoints prior to
 normal delivery. The possible outcomes are 1) malformation, 2) death or resorption, 3) no adverse event.
 }
-\usage{dehp}
+\usage{data(dehp)}
 \format{  A 'CMData' object, that is a data frame  with the following variables
   \tabular{ll}{
     Trt          \tab factor giving treatment group\cr

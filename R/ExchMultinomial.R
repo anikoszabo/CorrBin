@@ -130,7 +130,7 @@ jointprobs <- function(cmdata, type=c("averaged","cluster","mc")){
       
     } else if (type=="mc") {
       
-         pim <- mc.est.raw(cm1)[[1]]  #only one treatment group
+         pim <- mc.estraw(cm1)[[1]]  #only one treatment group
          res.trt <- tau.from.pi(pim)
       
     }
@@ -158,8 +158,9 @@ jointprobs <- function(cmdata, type=c("averaged","cluster","mc")){
 #'@return \item{NResp.1 - NResp.K}{numeric, the number of responses of each type}
 #'
 #'@note
-#'For multinomial data, the implementation is curerntly written in R, so it is not very fast.
+#'For multinomial data, the implementation is currently written in R, so it is not very fast.
 #'
+#'@references George EO, Cheon K, Yuan Y, Szabo A (2016)  On Exchangeable Multinomial Distributions. #'\emph{Biometrika} 103(2), 397-408.
 #'@examples
 #'data(dehp)
 #'dehp.mc <- mc.est(subset(dehp, Trt=="0"))
@@ -170,7 +171,7 @@ mc.est.CMData <- function(object, eps=1E-6, ...){
     nc <- attr(object, "ncat")      
     resp.vars1 <- paste("NResp", 1:(nc-1), sep=".")
    
-    res <- mc.est.raw(object=object, eps=eps, ...)
+    res <- mc.estraw(object=object, eps=eps, ...)
     margres <- lapply(res, Marginals)  # has only NResp.1 - NResp.K
     
     mat.to.df <- function(idx, alist){
@@ -227,10 +228,12 @@ Marginals <- function(theta){
 }
 
 #'@rdname CorrBin-internal
-mc.est.raw <- function(object, ...) UseMethod("mc.est.raw")
+#'@name mc.estraw
+mc.estraw <- function(object, ...) UseMethod("mc.estraw")
 
-#'@method mc.est.raw CMData
-mc.est.raw.CMData <- function(object, eps=1E-6, ...){
+#'@rdname CorrBin-internal
+#'@method mc.estraw CMData
+mc.estraw.CMData <- function(object, eps=1E-6, ...){
   cmdata <- object
   
     nc <- attr(cmdata, "ncat")

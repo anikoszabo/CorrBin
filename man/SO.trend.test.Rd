@@ -59,8 +59,8 @@ points(sh.test$LRT, 0, pch="*",col="red", cex=3)
 
 }
 \references{
-Szabo A, George EO. (2009) On the Use of Stochastic Ordering to
-Test for Trend with Clustered Binary Data.
+Szabo A, George EO. (2010) On the Use of Stochastic Ordering to
+Test for Trend with Clustered Binary Data. \emph{Biometrika} 97(1), 95-108.
 }
 \seealso{
 \code{\link{SO.LRT}} for calculating only the test statistic,

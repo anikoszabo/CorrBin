@@ -3,7 +3,8 @@
 \name{mChoose}
 \alias{mChoose}
 \alias{Marginals}
-\alias{mc.est.raw}
+\alias{mc.estraw}
+\alias{mc.estraw.CMData}
 \alias{tau.from.pi}
 \alias{p.from.tau}
 \alias{corr.from.tau}
@@ -17,7 +18,9 @@ mChoose(n, rvec, log = FALSE)
 
 Marginals(theta)
 
-mc.est.raw(object, ...)
+mc.estraw(object, ...)
+
+\method{mc.estraw}{CMData}(object, eps = 1e-06, ...)
 
 tau.from.pi(pimat)
 

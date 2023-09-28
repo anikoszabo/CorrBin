@@ -4,9 +4,14 @@
 \alias{soControl}
 \title{Control values for order-constrained fit}
 \usage{
-soControl(method = c("ISDM", "EM"), eps = 0.005, max.iter = 5000,
-  max.directions = 0, start = ifelse(method == "ISDM", "H0",
-  "uniform"), verbose = FALSE)
+soControl(
+  method = c("ISDM", "EM"),
+  eps = 0.005,
+  max.iter = 5000,
+  max.directions = 0,
+  start = ifelse(method == "ISDM", "H0", "uniform"),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{method}{a string specifying the maximization method}

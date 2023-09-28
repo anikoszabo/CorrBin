@@ -322,7 +322,7 @@ The code for calculating marginally-compatible $tau$'s is described in the next 
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
-\mbox{}\verb@   pim <- mc.est.raw(cm1)[[1]]  #only one treatment group@\\
+\mbox{}\verb@   pim <- mc.estraw(cm1)[[1]]  #only one treatment group@\\
 \mbox{}\verb@   res.trt <- tau.from.pi(pim)@\\
 \mbox{}\verb@@{\NWsep}
 \end{list}
@@ -330,7 +330,7 @@ The code for calculating marginally-compatible $tau$'s is described in the next 
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
 \item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
-\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est.raw@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.estraw@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -361,7 +361,7 @@ $\rvec_i = (r_1,\ldots,r_K)$ is the observed number of responses of each type.
 
 The \texttt{mc.est.CMData} function implements the \texttt{mc.est} S3 method for \texttt{CMData} objects, 
 returning a data frame with all  $\pi^{(g)}_{\rvec|n}, n=1,\ldots, M$ probabilities. The `hard' work is done
-by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
+by the \texttt{mc.estraw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
 \begin{flushleft} \small\label{scrap19}\raggedright\small
 \NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
@@ -381,8 +381,9 @@ by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi
 \mbox{}\verb@#'@{\tt @}\verb@return \item{NResp.1 - NResp.K}{numeric, the number of responses of each type}@\\
 \mbox{}\verb@#'@\\
 \mbox{}\verb@#'@{\tt @}\verb@note@\\
-\mbox{}\verb@#'For multinomial data, the implementation is curerntly written in R, so it is not very fast.@\\
+\mbox{}\verb@#'For multinomial data, the implementation is currently written in R, so it is not very fast.@\\
 \mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@references George EO, Cheon K, Yuan Y, Szabo A (2016)  On Exchangeable Multinomial Distributions. #'\emph{Biometrika} 103(2), 397-408.@\\
 \mbox{}\verb@#'@{\tt @}\verb@examples@\\
 \mbox{}\verb@#'data(dehp)@\\
 \mbox{}\verb@#'dehp.mc <- mc.est(subset(dehp, Trt=="0"))@\\
@@ -393,7 +394,7 @@ by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi
 \mbox{}\verb@    nc <- attr(object, "ncat")      @\\
 \mbox{}\verb@    resp.vars1 <- paste("NResp", 1:(nc-1), sep=".")@\\
 \mbox{}\verb@   @\\
-\mbox{}\verb@    res <- mc.est.raw(object=object, eps=eps, ...)@\\
+\mbox{}\verb@    res <- mc.estraw(object=object, eps=eps, ...)@\\
 \mbox{}\verb@    margres <- lapply(res, Marginals)  # has only NResp.1 - NResp.K@\\
 \mbox{}\verb@    @\\
 \mbox{}\verb@    mat.to.df <- function(idx, alist){@\\
@@ -417,7 +418,7 @@ by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
 \item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est.CMData@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.est.raw@\nobreak\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est.CMData@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.estraw@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -519,7 +520,7 @@ The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and l
 \end{list}
 \end{minipage}\vspace{4ex}
 \end{flushleft}
-The actual EM iterations are performed in \texttt{mc.est.raw}. 
+The actual EM iterations are performed in \texttt{mc.estraw}. 
 
 \begin{flushleft} \small\label{scrap27}\raggedright\small
 \NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
@@ -527,10 +528,12 @@ The actual EM iterations are performed in \texttt{mc.est.raw}.
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
 \mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
-\mbox{}\verb@mc.est.raw <- function(object, ...) UseMethod("mc.est.raw")@\\
+\mbox{}\verb@#'@{\tt @}\verb@name mc.estraw@\\
+\mbox{}\verb@mc.estraw <- function(object, ...) UseMethod("mc.estraw")@\\
 \mbox{}\verb@@\\
-\mbox{}\verb@#'@{\tt @}\verb@method mc.est.raw CMData@\\
-\mbox{}\verb@mc.est.raw.CMData <- function(object, eps=1E-6, ...){@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.estraw CMData@\\
+\mbox{}\verb@mc.estraw.CMData <- function(object, eps=1E-6, ...){@\\
 \mbox{}\verb@  cmdata <- object@\\
 \mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  @\\
@@ -1161,7 +1164,7 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
 \item \verb@corr.from.tau@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 \item \verb@Marginals@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
 \item \verb@mc.est.CMData@: \underline{\NWlink{nuweb?}{?}}.
-\item \verb@mc.est.raw@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mc.estraw@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}.
 \item \verb@mc.test.chisq@: \underline{\NWlink{nuweb?}{?}}.
 \item \verb@mChoose@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
 \item \verb@multi.corr@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.

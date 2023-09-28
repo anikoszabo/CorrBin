@@ -4,8 +4,12 @@
 \alias{ran.CBData}
 \title{Generate random correlated binary data}
 \usage{
-ran.CBData(sample.sizes, p.gen.fun = function(g) 0.3,
-  rho.gen.fun = function(g) 0.2, pdf.fun = qpower.pdf)
+ran.CBData(
+  sample.sizes,
+  p.gen.fun = function(g) 0.3,
+  rho.gen.fun = function(g) 0.2,
+  pdf.fun = qpower.pdf
+)
 }
 \arguments{
 \item{sample.sizes}{a dataset with variables Trt, ClusterSize and Freq giving

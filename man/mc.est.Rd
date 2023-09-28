@@ -57,7 +57,7 @@ independently for each treatment group.
 The EM algorithm given by Stefanescu and Turnbull (2003) is used for the binary data.
 }
 \note{
-For multinomial data, the implementation is curerntly written in R, so it is not very fast.
+For multinomial data, the implementation is currently written in R, so it is not very fast.
 }
 \examples{
 data(dehp)
@@ -74,6 +74,8 @@ xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSiz
 
 }
 \references{
+George EO, Cheon K, Yuan Y, Szabo A (2016)  On Exchangeable Multinomial Distributions. #'\emph{Biometrika} 103(2), 397-408.
+
 Stefanescu, C. & Turnbull, B. W. (2003) Likelihood inference for
 exchangeable binary data with varying cluster sizes.  \emph{Biometrics}, 59,
 18-24

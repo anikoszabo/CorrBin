@@ -4,9 +4,14 @@
 \alias{NOSTASOT}
 \title{Finding the NOSTASOT dose}
 \usage{
-NOSTASOT(cbdata, test = c("RS", "GEE", "GEEtrend", "GEEall", "SO"),
-  exact = test == "SO", R = 100, sig.level = 0.05,
-  control = soControl())
+NOSTASOT(
+  cbdata,
+  test = c("RS", "GEE", "GEEtrend", "GEEall", "SO"),
+  exact = test == "SO",
+  R = 100,
+  sig.level = 0.05,
+  control = soControl()
+)
 }
 \arguments{
 \item{cbdata}{a \code{\link{CBData}} object}

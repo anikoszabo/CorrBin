@@ -90,8 +90,8 @@ mc.test.chisq.CBData <- function(object,...){
 #'the performed number of iterations}
 #'@author Aniko Szabo, aszabo@@mcw.edu
 #'@seealso \code{\link{soControl}}
-#'@references Szabo A, George EO. (2009) On the Use of Stochastic Ordering to
-#'Test for Trend with Clustered Binary Data. \emph{Biometrika}
+#'@references Szabo A, George EO. (2010) On the Use of Stochastic Ordering to
+#'Test for Trend with Clustered Binary Data. \emph{Biometrika} 97(1), 95-108.
 #'@keywords nonparametric models
 #'@examples
 #'
@@ -328,8 +328,8 @@ SO.LRT <- function(cbdata, control=soControl()){
 #'@author Aniko Szabo, aszabo@@mcw.edu
 #'@seealso \code{\link{SO.LRT}} for calculating only the test statistic,
 #'\code{\link{soControl}}
-#'@references Szabo A, George EO. (2009) On the Use of Stochastic Ordering to
-#'Test for Trend with Clustered Binary Data.
+#'@references Szabo A, George EO. (2010) On the Use of Stochastic Ordering to
+#'Test for Trend with Clustered Binary Data. \emph{Biometrika} 97(1), 95-108.
 #'@keywords htest nonparametric
 #'@examples
 #'

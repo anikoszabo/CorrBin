@@ -224,7 +224,7 @@ for (n in which(Mn > 0)){
 The code for calculating marginally-compatible $tau$'s is described in the next section.
 
 @D Calculate MC taus @{
-   pim <- mc.est.raw(cm1)[[1]]  #only one treatment group
+   pim <- mc.estraw(cm1)[[1]]  #only one treatment group
    res.trt <- tau.from.pi(pim)
 @}
 
@@ -255,7 +255,7 @@ $\rvec_i = (r_1,\ldots,r_K)$ is the observed number of responses of each type.
 
 The \texttt{mc.est.CMData} function implements the \texttt{mc.est} S3 method for \texttt{CMData} objects, 
 returning a data frame with all  $\pi^{(g)}_{\rvec|n}, n=1,\ldots, M$ probabilities. The `hard' work is done
-by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
+by the \texttt{mc.estraw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
 @O ..\R\ExchMultinomial.R
 @{
 #'@@rdname mc.est
@@ -285,7 +285,7 @@ mc.est.CMData <- function(object, eps=1E-6, ...){
     nc <- attr(object, "ncat")      
     resp.vars1 <- paste("NResp", 1:(nc-1), sep=".")
    
-    res <- mc.est.raw(object=object, eps=eps, ...)
+    res <- mc.estraw(object=object, eps=eps, ...)
     margres <- lapply(res, Marginals)  # has only NResp.1 - NResp.K
     
     mat.to.df <- function(idx, alist){
@@ -357,15 +357,17 @@ The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and l
   }  
 @}
 
-The actual EM iterations are performed in \texttt{mc.est.raw}. 
+The actual EM iterations are performed in \texttt{mc.estraw}. 
 
 @O ..\R\ExchMultinomial.R
 @{
 #'@@rdname CorrBin-internal
-mc.est.raw <- function(object, ...) UseMethod("mc.est.raw")
+#'@@name mc.estraw
+mc.estraw <- function(object, ...) UseMethod("mc.estraw")
 
-#'@@method mc.est.raw CMData
-mc.est.raw.CMData <- function(object, eps=1E-6, ...){
+#'@@rdname CorrBin-internal
+#'@@method mc.estraw CMData
+mc.estraw.CMData <- function(object, eps=1E-6, ...){
   cmdata <- object
   @< Extract info from cmdata into variables @>
   
@@ -395,7 +397,7 @@ mc.est.raw.CMData <- function(object, eps=1E-6, ...){
   }
   names(res) <- levels(cmdata$Trt)
   res
-}@| mc.est.raw@}
+}@| mc.estraw@}
 
 Within each dose group, the algorithm iterates until the sum of squared changes of the parameters is smaller
 than the selected threshold \texttt{eps}.
