@@ -19,8 +19,8 @@ Description: Implements non-parametric analyses for clustered
     exchangeable, and identical joint distribution (also known as marginal
     compatibility, or reproducibility) is assumed for clusters of different
     sizes. A trend test based on stochastic ordering is implemented. 
-    Szabo A, George EO. (2010) <doi:https://doi.org/10.1093/biomet/asp077>;
-    George EO, Cheon K, Yuan Y, Szabo A (2016) <doi:https://doi.org/10.1093/biomet/asw009>.
+    Szabo A, George EO. (2010) <doi:10.1093/biomet/asp077>;
+    George EO, Cheon K, Yuan Y, Szabo A (2016) <doi:10.1093/biomet/asw009>.
 License: GPL (>=2)
 LazyLoad: yes
 RoxygenNote: 7.2.3

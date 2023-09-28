@@ -24,3 +24,7 @@ release_checks()
 spell_check()
 
 check_win_release()
+
+check_rhub()
+
+use_cran_comments()
