@@ -1,0 +1,832 @@
+\newcommand{\NWtarget}[2]{#2}
+\newcommand{\NWlink}[2]{#2}
+\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+\newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
+\newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
+\newcommand{\NWtxtDefBy}{Defined by}
+\newcommand{\NWtxtRefIn}{Referenced in}
+\newcommand{\NWtxtNoRef}{Not referenced}
+\newcommand{\NWtxtFileDefBy}{File defined by}
+\newcommand{\NWtxtIdentsUsed}{Uses:}
+\newcommand{\NWtxtIdentsNotUsed}{Never used}
+\newcommand{\NWtxtIdentsDefed}{Defines:}
+\newcommand{\NWsep}{${\diamond}$}
+\newcommand{\NWnotglobal}{(not defined globally)}
+\newcommand{\NWuseHyperlinks}{}
+\documentclass[reqno]{amsart}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\renewcommand{\NWtarget}[2]{\hypertarget{#1}{#2}}
+\renewcommand{\NWlink}[2]{\hyperlink{#1}{#2}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bpi}{\text{\boldmath $\pi$}}
+\newcommand{\leqst}{\mathrel{\preceq^{st}}}
+\newcommand{\geqst}{\mathrel{\succeq^{st}}}
+
+\title{Correlated binary data}
+\author{Aniko Szabo}
+\date{\today}
+
+
+\begin{document}
+\begin{abstract} We define a class for describing data from toxicology experiments
+and implement fitting of a variety of existing models and trend tests.
+\end{abstract}
+\maketitle
+
+\begin{flushleft} \small\label{scrap1}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CorrBin-package.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Nonparameterics for Correlated Binary and Multinomial Data@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'This package implements nonparametric methods for analysing exchangeable@\\
+\mbox{}\verb@#'binary and multinomial data with variable cluster sizes with emphasis on trend testing. The@\\
+\mbox{}\verb@#'input should specify the treatment group, cluster-size, and the number of@\\
+\mbox{}\verb@#'responses (i.e. the number of cluster elements with the outcome of interest)@\\
+\mbox{}\verb@#'for each cluster.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\tabular{ll}{ @\\
+\mbox{}\verb@#' Package: \tab CorrBin\cr @\\
+\mbox{}\verb@#' Type: \tab Package\cr @\\
+\mbox{}\verb@#' Version: \tab 1.5\cr@\\
+\mbox{}\verb@#' Date: \tab 2014-12-18\cr @\\
+\mbox{}\verb@#' License: \tab GPL 2\cr @\\
+\mbox{}\verb@#' LazyLoad: \tab yes\cr@\\
+\mbox{}\verb@#'} @\\
+\mbox{}\verb@#'\itemize{ \item The \code{\link{CBData}/\link{CMData}} and \code{\link{read.CBData}/\link{read.CMData}}@\\
+\mbox{}\verb@#'functions create a `CBData' or `CMData' object used by the analysis functions.  @\\
+\mbox{}\verb@#'\item \code{\link{ran.CBData}} and \code{\link{ran.CMData}} can be used to generate random @\\
+\mbox{}\verb@#' binary or multinomial data using a variety of distributions.  @\\
+\mbox{}\verb@#'\item \code{\link{mc.test.chisq}} tests the assumption of marginal compatibility@\\
+\mbox{}\verb@#'underlying all the methods, while \code{\link{mc.est}} estimates the@\\
+\mbox{}\verb@#'distribution of the number of responses under marginal compatibility.  @\\
+\mbox{}\verb@#'\item Finally, \code{\link{trend.test}} performs three different tests for trend@\\
+\mbox{}\verb@#'along the treatment groups for binomial data. }@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@name CorrBin-package@\\
+\mbox{}\verb@#'@{\tt @}\verb@aliases CorrBin-package CorrBin@\\
+\mbox{}\verb@#'@{\tt @}\verb@docType package@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Maintainer: Aniko Szabo <aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu>@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Szabo A, George EO. (2009) On the Use of Stochastic Ordering to@\\
+\mbox{}\verb@#'Test for Trend with Clustered Binary Data. \emph{Biometrika}@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Stefanescu, C. & Turnbull, B. W. (2003) Likelihood inference for exchangeable@\\
+\mbox{}\verb@#'binary data with varying cluster sizes. \emph{Biometrics}, 59, 18-24@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Pang, Z. & Kuk, A. (2007) Test of marginal compatibility and smoothing@\\
+\mbox{}\verb@#'methods for exchangeable binary data with unequal cluster sizes.@\\
+\mbox{}\verb@#'\emph{Biometrics}, 63, 218-227@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords package nonparametric@\\
+\mbox{}\verb@NULL@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtIdentsUsed\nobreak\  \verb@ran.CBData@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Defining \texttt{CBData} -- a class for \textbf{C}lustered \textbf{B}inary \textbf{Data}}
+We start with defining an S3 class describing data from toxicology experiments. The
+class is a data frame with the following columns:
+
+\begin{description}
+\item[Trt] a factor defining (treatment) groups
+\item[ClusterSize] an integer-valued variable defining the cluster size
+\item[NResp] an integer-valued variable defining the number of responses (1s)
+\item[Freq]  an integer-valued  variable defining frequency for each
+Trt/ClusterSize/NResp combination
+\end{description}
+
+\texttt{CBData} converts a data frame to a CBData object. \texttt{x}
+is the input data frame; \texttt{trt}, \texttt{clustersize}, \texttt{nresp} and
+\texttt{freq} could be strings or column indices defining the appropriate
+variable in \texttt{x} (\texttt{freq} can also be NULL, in which case it is 
+assumed that each combination has frequency 1).
+\begin{flushleft} \small\label{scrap2}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Create a `CBdata' object from a data frame.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The \code{CBData} function creates an object of class \dfn{CBData} that is@\\
+\mbox{}\verb@#'used in further analyses. It identifies the variables that define treatment@\\
+\mbox{}\verb@#'group, clustersize and the number of responses.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats aggregate@\\
+\mbox{}\verb@#'@{\tt @}\verb@param x a data frame with one row representing a cluster or potentially a@\\
+\mbox{}\verb@#'set of clusters of the same size and number of responses@\\
+\mbox{}\verb@#'@{\tt @}\verb@param trt the name of the variable that defines treatment group@\\
+\mbox{}\verb@#'@{\tt @}\verb@param clustersize the name of the variable that defines cluster size@\\
+\mbox{}\verb@#'@{\tt @}\verb@param nresp the name of the variable that defines the number of responses in@\\
+\mbox{}\verb@#'the cluster@\\
+\mbox{}\verb@#'@{\tt @}\verb@param freq the name of the variable that defines the number of clusters@\\
+\mbox{}\verb@#'represented by the data row. If \code{NULL}, then each row is assumed to@\\
+\mbox{}\verb@#'correspond to one cluster.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A data frame with each row representing all the clusters with the@\\
+\mbox{}\verb@#'same trt/size/number of responses, and standardized variable names:@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Trt}{factor, the treatment group}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ClusterSize}{numeric, the cluster size}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{NResp}{numeric, the number of responses}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Freq}{numeric, number of clusters with the same values}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{read.CBData}} for creating a \code{CBData} object@\\
+\mbox{}\verb@#'directly from a file.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords classes manip@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'sh <- CBData(shelltox, trt="Trt", clustersize="ClusterSize", nresp="NResp")@\\
+\mbox{}\verb@#'str(sh)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap3}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@CBData <- function(x, trt, clustersize, nresp, freq=NULL){@\\
+\mbox{}\verb@  if (!is.data.frame(x)) stop("x has to be a data frame")@\\
+\mbox{}\verb@  nms <- names(x)@\\
+\mbox{}\verb@  process.var <- function(var){@\\
+\mbox{}\verb@    if (is.character(var)){@\\
+\mbox{}\verb@       if (var %in% nms) res <- x[[var]]@\\
+\mbox{}\verb@       else stop(paste("Variable '", var, "' not found"))@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    else {@\\
+\mbox{}\verb@      if (is.numeric(var)){@\\
+\mbox{}\verb@         if (var %in% seq(along=nms)) res <- x[[var]]@\\
+\mbox{}\verb@         else stop(paste("Column", var, " not found"))@\\
+\mbox{}\verb@      }@\\
+\mbox{}\verb@      else stop(paste("Invalid variable specification:",var))@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  trtvar <- factor(process.var(trt))@\\
+\mbox{}\verb@  csvar <- process.var(clustersize)@\\
+\mbox{}\verb@  nrespvar <- process.var(nresp)@\\
+\mbox{}\verb@  if (is.null(freq)) freqvar <- rep(1, nrow(x))@\\
+\mbox{}\verb@  else freqvar <- process.var(freq)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  d <- data.frame(Trt=trtvar, ClusterSize=csvar, NResp=nrespvar, Freq=freqvar)@\\
+\mbox{}\verb@  d <- aggregate(d$Freq, list(Trt=d$Trt, ClusterSize=d$ClusterSize, NResp=d$NResp),sum)@\\
+\mbox{}\verb@  names(d)[4] <- "Freq"@\\
+\mbox{}\verb@  d$ClusterSize <- as.numeric(as.character(d$ClusterSize))@\\
+\mbox{}\verb@  d$NResp <- as.numeric(as.character(d$NResp))@\\
+\mbox{}\verb@  class(d) <- c("CBData", "data.frame")@\\
+\mbox{}\verb@  d}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@CBdata.data.frame@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The \texttt{read.CBData} function reads in clustered binary data from a tab-delimited
+text file. The first column should give the treatment group, the second the size of the cluster,
+the third the number of responses in the cluster. Optionally, a fourth column could
+give the number of times the given combination occurs in the data.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap4}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Read data from external file into a CBData object@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'A convenience function to read data from specially structured file directly@\\
+\mbox{}\verb@#'into a \code{CBData} object.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom utils read.table@\\
+\mbox{}\verb@#'@{\tt @}\verb@param file name of file with data. The first column should contain the@\\
+\mbox{}\verb@#'treatment group, the second the size of the cluster, the third the number of@\\
+\mbox{}\verb@#'responses in the cluster. Optionally, a fourth column could give the number@\\
+\mbox{}\verb@#'of times the given combination occurs in the data.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param with.freq logical indicator of whether a frequency variable is present@\\
+\mbox{}\verb@#'in the file@\\
+\mbox{}\verb@#'@{\tt @}\verb@param ... additonal arguments passed to \code{\link[utils]{read.table}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a \code{CBData} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{CBData}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords IO file@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap5}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@read.CBData <- function(file, with.freq=TRUE, ...){@\\
+\mbox{}\verb@  d <- read.table(file, col.names=c("Trt","ClusterSize","NResp", if (with.freq) "Freq"), ...)@\\
+\mbox{}\verb@  if (!with.freq) d$Freq <- 1@\\
+\mbox{}\verb@  d <- aggregate(d$Freq, list(Trt=d$Trt, ClusterSize=d$ClusterSize, NResp=d$NResp),sum)@\\
+\mbox{}\verb@  names(d)[4] <- "Freq"@\\
+\mbox{}\verb@  d$ClusterSize <- as.numeric(as.character(d$ClusterSize))@\\
+\mbox{}\verb@  d$NResp <- as.numeric(as.character(d$NResp))@\\
+\mbox{}\verb@  d <- CBData(d, "Trt", "ClusterSize", "NResp", "Freq")@\\
+\mbox{}\verb@  d}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@read.CBdata@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The \texttt{[.CMData} function defines subsetting of \texttt{CMData} objects. If the subsetting is only affecting the rows, then
+the appropriate attributes are preserved, and the unused levels of \texttt{Trt} are dropped. Otherwise the returned object does not
+have a \texttt{CMData} class anymore.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap6}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Extract from a CBData or CMData object@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The extracting syntax works as for \code{\link{[.data.frame}}, and in general the returned object is not a \code{CBData} or \code{CMData} object.@\\
+\mbox{}\verb@#'However if the columns are not modified, then the result is still a \code{CBData} or \code{CMData} object  with appropriate attributes  preserved, @\\
+\mbox{}\verb@#' and the unused levels of treatment groups dropped.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@param x \code{CMData} object.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param i numeric, row index of extracted values@\\
+\mbox{}\verb@#'@{\tt @}\verb@param j numeric, column index of extracted values@\\
+\mbox{}\verb@#'@{\tt @}\verb@param drop logical. If TRUE the result is coerced to the lowest possible dimension. @\\
+\mbox{}\verb@#'The default is the same as for \code{\link{[.data.frame}}: to drop if only one column is left, but not to drop if only one row is left.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a \code{CBData} or \code{CMData} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{CBData}, \code{\link{CMData}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords manip@\\
+\mbox{}\verb@#'@{\tt @}\verb@name Extract@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@NULL@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap7}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname Extract@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'str(shelltox[1:5,])@\\
+\mbox{}\verb@#'str(shelltox[1:5, 2:4])@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@"[.CBData" <- function(x, i, j, drop){@\\
+\mbox{}\verb@  res <- NextMethod("[")@\\
+\mbox{}\verb@  if (NCOL(res) == ncol(x)){@\\
+\mbox{}\verb@    res <- "[.data.frame"(x, i, )@\\
+\mbox{}\verb@    if (is.factor(res$Trt)) res$Trt <- droplevels(res$Trt)@\\
+\mbox{}\verb@    res@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  else {@\\
+\mbox{}\verb@    class(res) <- setdiff(class(res), "CBData")@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@[.CBData@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{unwrap.CBData} is a utility function that reformats a CBData object so that
+each row is one observation (instead of one cluster). A new `ID' variable is added
+to indicate clusters. It is first defined as a generic function to allow generalization.
+
+\begin{flushleft} \small\label{scrap8}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/aaa-generics.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Unwrap a clustered object@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{unwrap} is a utility function that reformats a CBData or CMData object so@\\
+\mbox{}\verb@#'that each row is one observation (instead of one or more clusters). A new@\\
+\mbox{}\verb@#'`ID' variable is added to indicate clusters. This form can be useful for@\\
+\mbox{}\verb@#'setting up the data for a different package.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@aliases unwrap unwrap.CBData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param object a \code{\link{CBData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param \dots other potential arguments; not currently used@\\
+\mbox{}\verb@#'@{\tt @}\verb@return For \code{unwrap.CBData}: a data frame with one row for each cluster element (having a binary@\\
+\mbox{}\verb@#'outcome) with the following standardized column names@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Trt}{factor, the treatment group}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ClusterSize}{numeric, the cluster size}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ID}{factor, each level representing a different cluster}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Resp}{numeric with 0/1 values, giving the response of the cluster@\\
+\mbox{}\verb@#'element}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords manip@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'ush <- unwrap(shelltox)@\\
+\mbox{}\verb@#'head(ush)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@unwrap <- function(object,...) UseMethod("unwrap")@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtIdentsUsed\nobreak\  \verb@unwrap.CBData@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap9}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname unwrap@\\
+\mbox{}\verb@#'@{\tt @}\verb@method unwrap CBData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@unwrap.CBData <- function(object,...){@\\
+\mbox{}\verb@  freqs <- rep(1:nrow(object), object$Freq)@\\
+\mbox{}\verb@  cb1 <- object[freqs,]@\\
+\mbox{}\verb@  cb1$Freq <- NULL@\\
+\mbox{}\verb@  cb1$ID <- factor(1:nrow(cb1))@\\
+\mbox{}\verb@  pos.idx <- rep(1:nrow(cb1), cb1$NResp)@\\
+\mbox{}\verb@  cb.pos <- cb1[pos.idx,]@\\
+\mbox{}\verb@  cb.pos$Resp <- 1@\\
+\mbox{}\verb@  cb.pos$NResp <- NULL@\\
+\mbox{}\verb@  neg.idx <- rep(1:nrow(cb1), cb1$ClusterSize-cb1$NResp)@\\
+\mbox{}\verb@  cb.neg <- cb1[neg.idx,]@\\
+\mbox{}\verb@  cb.neg$Resp <- 0@\\
+\mbox{}\verb@  cb.neg$NResp <- NULL@\\
+\mbox{}\verb@  res <- rbind(cb.pos, cb.neg)@\\
+\mbox{}\verb@  res[order(res$ID),]@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@unwrap.CBData@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Rao-Scott adjusted Cochran-Armitage test}
+The RS-adjusted CA test for trend is based on design-effect adjustment.
+
+\begin{flushleft} \small\label{scrap10}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Rao-Scott trend test@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{RS.trend.test} implements the Rao-Scott adjusted Cochran-Armitage test@\\
+\mbox{}\verb@#'for linear increasing trend with correlated data.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The test is based on calculating a \dfn{design effect} for each cluster by@\\
+\mbox{}\verb@#'dividing the observed variability by the one expected under independence. The@\\
+\mbox{}\verb@#'number of responses and the cluster size are then divided by the design@\\
+\mbox{}\verb@#'effect, and a Cochran-Armitage type test statistic is computed based on these@\\
+\mbox{}\verb@#'adjusted values.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The implementation aims for testing for \emph{increasing} trend, and a@\\
+\mbox{}\verb@#'one-sided p-value is reported. The test statistic is asymptotically normally@\\
+\mbox{}\verb@#'distributed, and a two-sided p-value can be easily computed if needed.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{\link{CBData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with components@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{statistic}{numeric, the value of the test statistic}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{p.val}{numeric, asymptotic one-sided p-value of the test}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{SO.trend.test}}, \code{\link{GEE.trend.test}} for@\\
+\mbox{}\verb@#'alternative tests; \code{\link{CBData}} for constructing a CBData object.@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Rao, J. N. K. & Scott, A. J. A (1992) Simple Method for the@\\
+\mbox{}\verb@#'Analysis of Clustered Data \emph{Biometrics}, 48, 577-586.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest nonparametric@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'RS.trend.test(shelltox)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@GEE.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@RS.trend.test@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap11}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@RS.trend.test <- function(cbdata){  @\\
+\mbox{}\verb@        dat2 <- cbdata[rep(1:nrow(cbdata), cbdata$Freq),]  #each row is one sample@\\
+\mbox{}\verb@        dat2$Trt <- factor(dat2$Trt)  #remove unused levels@\\
+\mbox{}\verb@  x.i <- pmax(tapply(dat2$NResp, dat2$Trt, sum), 0.5)  #"continuity" adjustment to avoid RS=NaN@\\
+\mbox{}\verb@  n.i <- tapply(dat2$ClusterSize, dat2$Trt, sum)@\\
+\mbox{}\verb@  m.i <- table(dat2$Trt)@\\
+\mbox{}\verb@  p.i.hat <- x.i/n.i@\\
+\mbox{}\verb@  r.ij <- dat2$NResp - dat2$ClusterSize*p.i.hat[dat2$Trt]@\\
+\mbox{}\verb@  v.i <- m.i/(m.i-1)/n.i^2*tapply(r.ij^2, dat2$Trt, sum)@\\
+\mbox{}\verb@  d.i <- n.i * v.i / (p.i.hat*(1-p.i.hat))   #design effect@\\
+\mbox{}\verb@  x.i.new <- x.i/d.i@\\
+\mbox{}\verb@  n.i.new <- n.i/d.i@\\
+\mbox{}\verb@  p.hat <- sum(x.i.new)/sum(n.i.new)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  scores <- (1:nlevels(dat2$Trt))-1@\\
+\mbox{}\verb@  mean.score <- sum(scores*n.i.new)/sum(n.i.new)@\\
+\mbox{}\verb@  var.scores <- sum(n.i.new*(scores-mean.score)^2)@\\
+\mbox{}\verb@  RS <- (sum(x.i.new*scores) - p.hat*sum(n.i.new*scores)) / @\\
+\mbox{}\verb@        sqrt(p.hat*(1-p.hat)*var.scores)@\\
+\mbox{}\verb@  p.val <- pnorm(RS, lower.tail=FALSE)@\\
+\mbox{}\verb@  list(statistic=RS, p.val=p.val)@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@RS.trend.test@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{GEE based test}
+
+\begin{flushleft} \small\label{scrap12}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'GEE-based trend test@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{GEE.trend.test} implements a GEE based test for linear increasing trend@\\
+\mbox{}\verb@#'for correlated binary data.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The actual work is performed by the \code{\link[geepack]{geese}} function of@\\
+\mbox{}\verb@#'the \code{geepack} library. This function only provides a convenient wrapper@\\
+\mbox{}\verb@#'to obtain the results in the same format as \code{\link{RS.trend.test}} and@\\
+\mbox{}\verb@#'\code{\link{SO.trend.test}}.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The implementation aims for testing for \emph{increasing} trend, and a@\\
+\mbox{}\verb@#'one-sided p-value is reported. The test statistic is asymptotically normally@\\
+\mbox{}\verb@#'distributed, and a two-sided p-value can be easily computed if needed.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@import geepack@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats binomial pnorm@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{\link{CBData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param scale.method character string specifying the assumption about the@\\
+\mbox{}\verb@#'change in the overdispersion (scale) parameter across the treatment groups:@\\
+\mbox{}\verb@#'"fixed" - constant scale parameter (default); "trend" - linear trend for the@\\
+\mbox{}\verb@#'log of the scale parameter; "all" - separate scale parameter for each group.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with components@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{statistic}{numeric, the value of the test statistic}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{p.val}{numeric, asymptotic one-sided p-value of the test}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{RS.trend.test}}, \code{\link{SO.trend.test}} for@\\
+\mbox{}\verb@#'alternative tests; \code{\link{CBData}} for constructing a CBData object.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest models@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'GEE.trend.test(shelltox, "trend")@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@GEE.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@RS.trend.test@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap13}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@GEE.trend.test <- function(cbdata, scale.method=c("fixed", "trend", "all")){@\\
+\mbox{}\verb@  ucb <- unwrap.CBData(cbdata)@\\
+\mbox{}\verb@  scale.method <- match.arg(scale.method)@\\
+\mbox{}\verb@  if (scale.method=="fixed") {@\\
+\mbox{}\verb@    geemod <- geese(Resp~unclass(Trt), id=ucb$ID, scale.fix=FALSE, data=ucb,@\\
+\mbox{}\verb@                    family=binomial, corstr="exch") }  @\\
+\mbox{}\verb@  else if (scale.method=="trend"){@\\
+\mbox{}\verb@    geemod <- geese(Resp~unclass(Trt), sformula=~unclass(Trt), id=ucb$ID,  data=ucb,@\\
+\mbox{}\verb@                   family=binomial, sca.link="log", corstr="exch")}@\\
+\mbox{}\verb@  else if (scale.method=="all"){@\\
+\mbox{}\verb@    geemod <- geese(Resp~unclass(Trt), id=ucb$ID,  sformula=~Trt, data=ucb,@\\
+\mbox{}\verb@                    family=binomial, sca.link="log", corstr="exch") } @\\
+\mbox{}\verb@  geesum <- summary(geemod)@\\
+\mbox{}\verb@  testres <- geesum$mean[2,"estimate"]/geesum$mean[2,"san.se"]@\\
+\mbox{}\verb@  p <- pnorm(testres, lower.tail=FALSE)@\\
+\mbox{}\verb@  list(statistic=testres, p.val=p)@\\
+\mbox{}\verb@ }   @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@GEE.trend.test@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@unwrap.CBData@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Generating random data}
+\texttt{ran.CBData} generates a random CBData object from a given two-parameter
+distribution. \texttt{sample.sizes} is a dataset with variables Trt, ClusterSize and
+Freq giving the number of clusters to be generated for each Trt/ClusterSize combination.
+\texttt{p.gen.fun} and \texttt{rho.gen.fun} are functions that generate the parameter
+values for each treatment group ($g=1$ corresponds to the lowest group, $g=2$ to the
+second, etc). \texttt{pdf.fun} is a function(p, rho, n) generating the pdf of the
+number of responses given the two parameters \texttt{p} and \texttt{rho}, and the
+cluster size \texttt{n}.
+
+\begin{flushleft} \small\label{scrap14}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Generate random correlated binary data@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{ran.mc.CBData} generates a random \code{\link{CBData}} object from a@\\
+\mbox{}\verb@#'given two-parameter distribution.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\dfn{p.gen.fun} and \dfn{rho.gen.fun} are functions that generate the@\\
+\mbox{}\verb@#'parameter values for each treatment group; \dfn{pdf.fun} is a function@\\
+\mbox{}\verb@#'generating the pdf of the number of responses given the two parameters@\\
+\mbox{}\verb@#'\dfn{p} and \dfn{rho}, and the cluster size \dfn{n}.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{p.gen.fun} and \code{rho.gen.fun} expect the parameter value of 1 to@\\
+\mbox{}\verb@#'represent the first group, 2 - the second group, etc.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats rmultinom@\\
+\mbox{}\verb@#'@{\tt @}\verb@param sample.sizes a dataset with variables Trt, ClusterSize and Freq giving@\\
+\mbox{}\verb@#'the number of clusters to be generated for each Trt/ClusterSize combination.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param p.gen.fun a function of one parameter that generates the value of the@\\
+\mbox{}\verb@#'first parameter of \code{pdf.fun} (\emph{p}) given the group number.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param rho.gen.fun a function of one parameter that generates the value of@\\
+\mbox{}\verb@#'the second parameter of \code{pdf.fun} (\emph{rho}) given the group number.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param pdf.fun a function of three parameters (\emph{p, rho, n}) giving the@\\
+\mbox{}\verb@#'PDF of the number of responses in a cluster given the two parameters@\\
+\mbox{}\verb@#'(\emph{p, rho}), and the cluster size (\emph{n}). Functions implementing two@\\
+\mbox{}\verb@#'common distributions: the beta-binomial (\code{\link{betabin.pdf}}) and@\\
+\mbox{}\verb@#'q-power (\code{\link{qpower.pdf}}) are provided in the package.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a CBData object with randomly generated number of responses with@\\
+\mbox{}\verb@#'sample sizes specified in the call.@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{betabin.pdf}} and \code{\link{qpower.pdf}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords distribution@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#' set.seed(3486)@\\
+\mbox{}\verb@#' ss <- expand.grid(Trt=0:3, ClusterSize=5, Freq=4)@\\
+\mbox{}\verb@#' #Trt is converted to a factor@\\
+\mbox{}\verb@#' rd <- ran.CBData(ss, p.gen.fun=function(g)0.2+0.1*g)@\\
+\mbox{}\verb@#' rd@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@ran.CBData@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap15}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@ran.CBData <- function(sample.sizes, p.gen.fun=function(g)0.3,@\\
+\mbox{}\verb@                           rho.gen.fun=function(g)0.2, pdf.fun=qpower.pdf){@\\
+\mbox{}\verb@   ran.gen <- function(d){@\\
+\mbox{}\verb@   # d is subset(sample.sizes, Trt==trt, ClusterSize==cs)@\\
+\mbox{}\verb@     cs <- d$ClusterSize[1]@\\
+\mbox{}\verb@     trt <- unclass(d$Trt)[1]@\\
+\mbox{}\verb@     n <- d$Freq[1]@\\
+\mbox{}\verb@     p <- p.gen.fun(trt)@\\
+\mbox{}\verb@     rho <- rho.gen.fun(trt)@\\
+\mbox{}\verb@     probs <- pdf.fun(p, rho, cs)@\\
+\mbox{}\verb@     tmp <- rmultinom(n=1, size=n, prob=probs)[,1]@\\
+\mbox{}\verb@     cbind(Freq=tmp, NResp=0:cs, ClusterSize=d$ClusterSize, Trt=d$Trt)}@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@   sst <- if (is.factor(sample.sizes$Trt)) sample.sizes$Trt else factor(sample.sizes$Trt)@\\
+\mbox{}\verb@   a <- by(sample.sizes, list(Trt=sst, ClusterSize=sample.sizes$ClusterSize), ran.gen)@\\
+\mbox{}\verb@   a <- data.frame(do.call(rbind, a))@\\
+\mbox{}\verb@   a$Trt <- factor(a$Trt, labels=levels(sst))@\\
+\mbox{}\verb@   a <- a[a$Freq>0, ]@\\
+\mbox{}\verb@   class(a) <-  c("CBData", "data.frame")@\\
+\mbox{}\verb@   a@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@ran.CBData@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Parametric pdf generating functions}
+\texttt{betabin.pdf} and \texttt{qpower.pdf} provide two classic distributions --
+beta-binomial and q-power -- for generating correlated binary data. Either
+can be used in \texttt{ran.CBData}.
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap16}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Parametric distributions for correlated binary data@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{qpower.pdf} and \code{betabin.pdf} calculate the probability@\\
+\mbox{}\verb@#'distribution function for the number of responses in a cluster of the q-power@\\
+\mbox{}\verb@#'and beta-binomial distributions, respectively.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The pdf of the q-power distribution is \deqn{P(X=x) =@\\
+\mbox{}\verb@#'{{n}\choose{x}}\sum_{k=0}^x (-1)^k{{x}\choose{k}}q^{(n-x+k)^\gamma},}{P(X=x)@\\
+\mbox{}\verb@#'= C(n,x)\sum_{k=0}^x (-1)^kC(x,k)q^((n-x+k)^g),} \eqn{x=0,\ldots,n}, where@\\
+\mbox{}\verb@#'\eqn{q=1-p}, and the intra-cluster correlation \deqn{\rho =@\\
+\mbox{}\verb@#'\frac{q^{2^\gamma}-q^2}{q(1-q)}.}{rho = (q^(2^g)-q^2)/(q(1-q)).}@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The pdf of the beta-binomial distribution is \deqn{P(X=x) = {{n}\choose{x}}@\\
+\mbox{}\verb@#'\frac{B(\alpha+x, n+\beta-x)}{B(\alpha,\beta)},}{P(X=x) = C(n,x)@\\
+\mbox{}\verb@#'B(a+x,n+b-x)/B(a,b),} \eqn{x=0,\ldots,n}, where \eqn{\alpha=@\\
+\mbox{}\verb@#'p\frac{1-\rho}{\rho}}{a=p(1-rho)/rho}, and \eqn{\alpha=@\\
+\mbox{}\verb@#'(1-p)\frac{1-\rho}{\rho}}{b=(1-p)(1-rho)/rho}.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@name pdf@\\
+\mbox{}\verb@#'@{\tt @}\verb@aliases qpower.pdf betabin.pdf@\\
+\mbox{}\verb@#'@{\tt @}\verb@param p numeric, the probability of success.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param rho numeric between 0 and 1 inclusive, the within-cluster correlation.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param n integer, cluster size.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a numeric vector of length \eqn{n+1} giving the value of \eqn{P(X=x)}@\\
+\mbox{}\verb@#'for \eqn{x=0,\ldots,n}.@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{ran.CBData}} for generating an entire dataset using@\\
+\mbox{}\verb@#'these functions@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Kuk, A. A (2004) litter-based approach to risk assessement in@\\
+\mbox{}\verb@#'developmental toxicity studies via a power family of completely monotone@\\
+\mbox{}\verb@#'functions \emph{Applied Statistics}, 52, 51-61.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Williams, D. A. (1975) The Analysis of Binary Responses from Toxicological@\\
+\mbox{}\verb@#'Experiments Involving Reproduction and Teratogenicity \emph{Biometrics}, 31,@\\
+\mbox{}\verb@#'949-952.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords distribution@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'#the distributions have quite different shapes@\\
+\mbox{}\verb@#'#with q-power assigning more weight to the "all affected" event than other distributions@\\
+\mbox{}\verb@#'plot(0:10, betabin.pdf(0.3, 0.4, 10), type="o", ylim=c(0,0.34), @\\
+\mbox{}\verb@#'   ylab="Density", xlab="Number of responses out of 10")@\\
+\mbox{}\verb@#'lines(0:10, qpower.pdf(0.3, 0.4, 10), type="o", col="red")@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@ran.CBData@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap17}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@ betabin.pdf <- function(p, rho, n){@\\
+\mbox{}\verb@   a <- p*(1/rho-1)@\\
+\mbox{}\verb@   b <- (1-p)*(1/rho-1)@\\
+\mbox{}\verb@   idx <- 0:n@\\
+\mbox{}\verb@   res <- choose(n, idx)*beta(a+idx, b+n-idx)/beta(a,b)@\\
+\mbox{}\verb@   res@\\
+\mbox{}\verb@  } @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap18}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/CBData.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname pdf@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@ qpower.pdf <- function(p, rho, n){@\\
+\mbox{}\verb@   .q <- 1-p@\\
+\mbox{}\verb@   gamm <- log2(log(.q^2+rho*.q*(1-.q))/log(.q))@\\
+\mbox{}\verb@   res <- numeric(n+1)@\\
+\mbox{}\verb@   for (y in 0:n){@\\
+\mbox{}\verb@     idx <- 0:y@\\
+\mbox{}\verb@     res[y+1] <- choose(n,y) * sum( (-1)^idx * choose(y,idx) * .q^((n-y+idx)^gamm))@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   res <- pmax(pmin(res,1),0)  #to account for numerical imprecision@\\
+\mbox{}\verb@   res@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\end{document}

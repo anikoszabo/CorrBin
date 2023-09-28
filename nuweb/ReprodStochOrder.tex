@@ -1,0 +1,2364 @@
+\newcommand{\NWtarget}[2]{#2}
+\newcommand{\NWlink}[2]{#2}
+\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+\newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
+\newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
+\newcommand{\NWtxtDefBy}{Defined by}
+\newcommand{\NWtxtRefIn}{Referenced in}
+\newcommand{\NWtxtNoRef}{Not referenced}
+\newcommand{\NWtxtFileDefBy}{File defined by}
+\newcommand{\NWtxtIdentsUsed}{Uses:}
+\newcommand{\NWtxtIdentsNotUsed}{Never used}
+\newcommand{\NWtxtIdentsDefed}{Defines:}
+\newcommand{\NWsep}{${\diamond}$}
+\newcommand{\NWnotglobal}{(not defined globally)}
+\newcommand{\NWuseHyperlinks}{}
+\documentclass[reqno]{amsart}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\renewcommand{\NWtarget}[2]{\hypertarget{#1}{#2}}
+\renewcommand{\NWlink}[2]{\hyperlink{#1}{#2}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bpi}{\text{\boldmath $\pi$}}
+\newcommand{\leqst}{\mathrel{\preceq^{st}}}
+\newcommand{\geqst}{\mathrel{\succeq^{st}}}
+\providecommand{\tsum}{\textstyle\sum}
+
+\title{Testing for stochastic ordering assuming marginal compatibility}
+\author{Aniko Szabo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section{Preliminaries}
+
+First we need to set up the C file so that it can access the R internals.
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#include <stdlib.h>@\\
+\mbox{}\verb@#include <R.h>@\\
+\mbox{}\verb@#include <Rdefines.h>@\\
+\mbox{}\verb@#include <Rmath.h>@\\
+\mbox{}\verb@#include <R_ext/Applic.h>@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+We will be using object of \texttt{CBData} class, which is defined in \texttt{CBData.w}.
+
+
+\section{Marginal compatibility}
+
+\subsection{Estimation}
+
+The following C code implements the EM-algorithm for estimating the probabilities
+of response assuming marginal compatibility.
+
+\begin{equation}
+ \pi_{rM}^{(t+1)} = \frac{1}{N}
+\sum_{i=1}^{N} h(r_{i},r,n_{i})
+             \frac{\pi^{(t)}_{r,M}}{\pi^{(t)}_{r_{i},n_{i}}},
+\end{equation}
+
+First we write a help-function that calculates all the probabilities
+$\pi_{r,n}$ given the set of $\theta_r=\pi_{r,M}$. While there are a variety
+of ways doing this, we use a recursive formula:
+\begin{equation}
+\pi_{r,n}  = \frac{n+1-r}{n+1}\pi_{r,n+1} + \frac{r+1}{n+1}\pi_{r+1,n+1}
+\end{equation}
+
+\begin{flushleft} \small\label{scrap2}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@double static **Marginals(double* theta, int maxsize)@\\
+\mbox{}\verb@{@\\
+\mbox{}\verb@ double **res;@\\
+\mbox{}\verb@ int r, n;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ res = malloc((maxsize+1)*sizeof(double *));@\\
+\mbox{}\verb@ for (n=0; n<=maxsize; n++){@\\
+\mbox{}\verb@         res[n] = calloc(n+1, sizeof(double));@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for (r=0; r<=maxsize; r++){@\\
+\mbox{}\verb@         res[maxsize][r] = theta[r];@\\
+\mbox{}\verb@ } @\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for (n=maxsize-1; n>=1; n--){@\\
+\mbox{}\verb@         for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                 res[n][r] = (n+1.0-r)/(n+1.0)*res[n+1][r] + (r+1.0)/(n+1.0)*res[n+1][r+1];@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ return res;    @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The actual EM iterations are performed in \texttt{ReprodEstimates}.
+
+\begin{flushleft} \small\label{scrap3}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SEXP ReprodEstimates(SEXP nvec, SEXP rvec, SEXP freqvec)@\\
+\mbox{}\verb@{@\\
+\mbox{}\verb@ double *theta, *thetanew, abserror, **marg;@\\
+\mbox{}\verb@ int i, maxsize, nr, ntot, r, ri, ni, n, fri, start;@\\
+\mbox{}\verb@ SEXP res;@\\
+\mbox{}\verb@ const double eps=1e-16;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ nr = LENGTH(nvec);@\\
+\mbox{}\verb@ maxsize = 0;@\\
+\mbox{}\verb@ ntot = 0;@\\
+\mbox{}\verb@ for (i=0; i<nr; i++){@\\
+\mbox{}\verb@         if (INTEGER(nvec)[i]>maxsize){@\\
+\mbox{}\verb@                 maxsize = INTEGER(nvec)[i];@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         ntot += INTEGER(freqvec)[i];@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@                 @\\
+\mbox{}\verb@ theta = malloc((maxsize+1) * sizeof(double));@\\
+\mbox{}\verb@ thetanew = malloc((maxsize+1) * sizeof(double));@\\
+\mbox{}\verb@ //starting values@\\
+\mbox{}\verb@ for (r=0; r<=maxsize; r++){@\\
+\mbox{}\verb@         theta[r] = 1.0/(maxsize+1);@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ abserror = 1;@\\
+\mbox{}\verb@ //EM update@\\
+\mbox{}\verb@ while (abserror>eps){@\\
+\mbox{}\verb@         abserror = 0;@\\
+\mbox{}\verb@         marg = Marginals(theta, maxsize);@\\
+\mbox{}\verb@         for (r=0; r<=maxsize; r++) thetanew[r] = 0;@\\
+\mbox{}\verb@         for (i=0; i<nr; i++){@\\
+\mbox{}\verb@                 ri = INTEGER(rvec)[i];@\\
+\mbox{}\verb@                 ni = INTEGER(nvec)[i];@\\
+\mbox{}\verb@                 fri = INTEGER(freqvec)[i];@\\
+\mbox{}\verb@                 for (r=ri; r<=maxsize-ni+ri; r++){@\\
+\mbox{}\verb@                         thetanew[r] += choose(ni,ri)*choose(maxsize-ni,r-ri)*theta[r]*fri*1.0/@\\
+\mbox{}\verb@                                        marg[ni][ri] ;@\\
+\mbox{}\verb@                 }@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         for (r=0; r<=maxsize; r++){@\\
+\mbox{}\verb@                 thetanew[r] = thetanew[r]/(ntot*choose(maxsize,r)*1.0);@\\
+\mbox{}\verb@                 abserror += fabs(thetanew[r]-theta[r]);@\\
+\mbox{}\verb@                 theta[r] = thetanew[r];@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         for(n = 0; n <= maxsize; n++) free(marg[n]);@\\
+\mbox{}\verb@     free(marg);@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(res = allocMatrix(REALSXP, maxsize+1, maxsize));@\\
+\mbox{}\verb@ marg = Marginals(theta, maxsize);@\\
+\mbox{}\verb@ for (n=1, start=0; n<=maxsize; n++, start+=(maxsize+1)){@\\
+\mbox{}\verb@         for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                 REAL(res)[start+r] = marg[n][r];@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         for (r=n+1; r<=maxsize; r++){@\\
+\mbox{}\verb@                 REAL(res)[start+r] = NA_REAL;@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for(n = 0; n <= maxsize; n++) free(marg[n]);@\\
+\mbox{}\verb@ free(marg);@\\
+\mbox{}\verb@ free(theta);@\\
+\mbox{}\verb@ free(thetanew);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ UNPROTECT(1);@\\
+\mbox{}\verb@ return res;@\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@ReprodEstimates@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+We will call the C function from R to calculate estimates separately by 
+treatment group. For the package the compiled library needs to be loaded.
+
+%In order to use the C code, it has to be first compiled into a
+%DLL by calling \texttt{Rcmd SHLIB ReprodCalcs.c} from console. Then we load it
+%into the R code\footnote{this is for a Windows system; on Linux/Unix a .so
+%file would be created and that's what would be loaded}:
+
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap4}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/aaa-generics1.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Distribution of the number of responses assuming marginal compatibility.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The \code{mc.est} function estimates the distribution of the number of@\\
+\mbox{}\verb@#'responses in a cluster under the assumption of marginal compatibility:@\\
+\mbox{}\verb@#'information from all cluster sizes is pooled. The estimation is performed@\\
+\mbox{}\verb@#'independently for each treatment group.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The EM algorithm given by Stefanescu and Turnbull (2003) is used for the binary data.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@useDynLib CorrBin, .registration=TRUE@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param object a \code{\link{CBData}} or \code{\link{CMData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param \dots other potential arguments; not currently used@\\
+\mbox{}\verb@#'@{\tt @}\verb@return For \code{CBData}: A data frame giving the estimated pdf for each treatment and@\\
+\mbox{}\verb@#'clustersize.  The probabilities add up to 1@\\
+\mbox{}\verb@#'for each \code{Trt}/\code{ClusterSize} combination. It has the following columns: @\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Prob}{numeric, the probability of \code{NResp} responses in a@\\
+\mbox{}\verb@#'cluster of size \code{ClusterSize} in group \code{Trt}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Trt}{factor, the treatment group}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ClusterSize}{numeric, the cluster size}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{NResp}{numeric, the number of responses}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Stefanescu, C. & Turnbull, B. W. (2003) Likelihood inference for@\\
+\mbox{}\verb@#'exchangeable binary data with varying cluster sizes.  \emph{Biometrics}, 59,@\\
+\mbox{}\verb@#'18-24@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords nonparametric models@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'sh.mc <- mc.est(shelltox)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'library(lattice)@\\
+\mbox{}\verb@#'xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSize>0, @\\
+\mbox{}\verb@#'    type="l", as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),@\\
+\mbox{}\verb@#'    xlab="Number of responses", ylab="Probability P(R=r|N=n)")@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@name mc.est@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.est <- function(object,...) UseMethod("mc.est")@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap5}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname mc.est@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.est CBData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.est.CBData <- function(object, ...){@\\
+\mbox{}\verb@  cbdata <- object[object$Freq>0, ]@\\
+\mbox{}\verb@  #by trt@\\
+\mbox{}\verb@  do.est.fun <- function(x){@\\
+\mbox{}\verb@    est <- .Call("ReprodEstimates", as.integer(x$ClusterSize), as.integer(x$NResp), @\\
+\mbox{}\verb@                             as.integer(x$Freq),PACKAGE="CorrBin")@\\
+\mbox{}\verb@    est <- cbind(c(1,rep(NA,nrow(est)-1)), est) @\\
+\mbox{}\verb@    idx <- upper.tri(est,diag=TRUE)@\\
+\mbox{}\verb@    est.d <- data.frame(Prob=est[idx], ClusterSize=as.integer(col(est)[idx]-1), @\\
+\mbox{}\verb@                        NResp=as.integer(row(est)[idx]-1),@\\
+\mbox{}\verb@                        Trt=x$Trt[1])@\\
+\mbox{}\verb@    est.d}  @\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  est.list <- by(cbdata, list(Trt=cbdata$Trt), do.est.fun)@\\
+\mbox{}\verb@  do.call(rbind, est.list)}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@ReprodEstimates@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Testing marginal compatibility}
+The \texttt{mc.test.chisq} function implements Pang and Kuk's version of
+the test for marginal compatibility. Note that it only tests that the marginal probability of 
+response $p_i$ does not depend on the cluster size. The original test was only
+defined for one group and the test statistic was compared to $\chi^2_1$ (or more
+precisely, it was a z-test), however the test is easily generalized by adding 
+the test statistics for the $G$ separate groups and using a $\chi^2_G$ distribution.
+
+\begin{equation}
+Z_g = \Big[\sum_{i=1}^{N_g} (c_{n_{g,i}} - \bar{c}_g) r_{g,i}\Big] \bigg/
+  \Big[\hat{p}_g(1-\hat{p}_g)\sum_{i=1}^{N_g}n_{g,i}(c_{n_{g,i}} - \bar{c}_g)^2 \{1+(n_{g,i}-1)\hat{\rho}_g\}\Big]^{1/2},
+\end{equation}
+where $c_n$ are the scores for the Cochran-Armitage test usually chosen as $c_n=n-(M+1)/2$, 
+$\bar{c}_g=\big(\sum_{i=1}^{N_g}n_{g,i}c_{n_{g,i}}\big) \big/ \big(\sum_{i=1}^{N_g}n_{g,i}\big)$ is a weighted
+average of the scores; $\hat{p}_g=\big(\sum_{i=1}^{N_g}r_{g,i}\big) \big/ \big(\sum_{i=1}^{N_g}n_{g,i}\big)$ 
+is the raw response probability, and 
+$\hat{\rho}_g=1-\big[\sum_{i=1}^{N_g}(n_{g,i}-r_{g,i})r_{g,i}/n_{g,i}\big] \big/ 
+\big[\hat{p}_g(1-\hat{p}_g)\sum_{i=1}^{N_g}(n_{g,i}-1)\big]$ is the Fleiss-Cuzack estimate of the intra-cluster
+correlation for the $g$th treatment group. 
+
+\begin{equation}
+X^2=\sum_{g=1}^G Z_g^2 \sim \chi^2_G \text{ under }H_0.
+\end{equation}
+
+\begin{flushleft} \small\label{scrap6}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/aaa-generics1.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Test the assumption of marginal compatibility@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{mc.test.chisq} tests whether the assumption of marginal compatibility is@\\
+\mbox{}\verb@#'violated in the data.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The assumption of marginal compatibility (AKA reproducibility or interpretability) implies that@\\
+\mbox{}\verb@#'the marginal probability of response does not depend on clustersize.@\\
+\mbox{}\verb@#'Stefanescu and Turnbull (2003), and Pang and Kuk (2007) developed a@\\
+\mbox{}\verb@#'Cochran-Armitage type test for trend in the marginal probability of success@\\
+\mbox{}\verb@#'as a function of the clustersize. \code{mc.test.chisq} implements a@\\
+\mbox{}\verb@#'generalization of that test extending it to multiple treatment groups.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param object a \code{\link{CBData}} or \code{\link{CMData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param \dots other potential arguments; not currently used@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with the following components:@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{overall.chi}{the test statistic; sum of the statistics for each@\\
+\mbox{}\verb@#'group}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{overall.p}{p-value of the test}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{individual}{a list of the results of the test applied to each@\\
+\mbox{}\verb@#'group separately: \itemize{ \item chi.sq the test statistic for the group@\\
+\mbox{}\verb@#'\item p p-value for the group}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{mc.est}} for estimating the distribution under marginal@\\
+\mbox{}\verb@#'compatibility.@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Stefanescu, C. & Turnbull, B. W. (2003) Likelihood inference for@\\
+\mbox{}\verb@#'exchangeable binary data with varying cluster sizes. \emph{Biometrics}, 59,@\\
+\mbox{}\verb@#'18-24@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Pang, Z. & Kuk, A. (2007) Test of marginal compatibility and smoothing@\\
+\mbox{}\verb@#'methods for exchangeable binary data with unequal cluster sizes.@\\
+\mbox{}\verb@#'\emph{Biometrics}, 63, 218-227@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'mc.test.chisq(shelltox)@\\
+\mbox{}\verb@#' @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.test.chisq <- function(object,...) UseMethod("mc.test.chisq")@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.test.chisq@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap7}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname mc.test.chisq@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.test.chisq CBData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats pchisq@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.test.chisq.CBData <- function(object,...){@\\
+\mbox{}\verb@  cbdata <- object[object$Freq>0, ]@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@  get.T <- function(x){@\\
+\mbox{}\verb@      max.size <- max(x$ClusterSize)@\\
+\mbox{}\verb@      scores <- (1:max.size) - (max.size+1)/2@\\
+\mbox{}\verb@      p.hat <- with(x, sum(Freq*NResp) / sum(Freq*ClusterSize))@\\
+\mbox{}\verb@      rho.hat <- with(x, 1-sum(Freq*(ClusterSize-NResp)*NResp/ClusterSize) / @\\
+\mbox{}\verb@          (sum(Freq*(ClusterSize-1))*p.hat*(1-p.hat)))  #Fleiss-Cuzick estimate@\\
+\mbox{}\verb@      c.bar <- with(x, sum(Freq*scores[ClusterSize]*ClusterSize) / sum(Freq*ClusterSize))@\\
+\mbox{}\verb@      T.center <- with(x, sum(Freq*(scores[ClusterSize]-c.bar)*NResp))@\\
+\mbox{}\verb@      Var.T.stat <-  with(x, @\\
+\mbox{}\verb@         p.hat*(1-p.hat)*sum(Freq*(scores[ClusterSize]-c.bar)^2*ClusterSize*(1+(ClusterSize-1)*rho.hat)))@\\
+\mbox{}\verb@      X.stat <- (T.center)^2/Var.T.stat@\\
+\mbox{}\verb@      X.stat}@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@   chis <- by(cbdata, cbdata$Trt, get.T)@\\
+\mbox{}\verb@   chis <- chis[1:length(chis)]@\\
+\mbox{}\verb@   chi.list <- list(chi.sq=chis, p=pchisq(chis, df=1, lower.tail=FALSE))@\\
+\mbox{}\verb@   overall.chi <- sum(chis)@\\
+\mbox{}\verb@   overall.df <- length(chis)@\\
+\mbox{}\verb@   list(overall.chi=overall.chi, overall.p=pchisq(overall.chi, df=overall.df, lower.tail=FALSE), @\\
+\mbox{}\verb@        individual=chi.list)@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.test.chisq@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Estimation under stochastic ordering}
+
+We implement the estimation of the stochastically ordered MLE based on the
+mixture representation following Hoff. The parameter \texttt{turn} controls the
+extension to unimodal down-then-up orderings. The default value of \texttt{turn=1}
+corresponds to the stochastically ordered $H_a$.
+
+The actual calculations will be done in C;
+the following function sets up the call from R. The input dataset should have
+variables \texttt{NResp}, \texttt{ClusterSize},\texttt{Trt} and \texttt{Freq} -- 
+it is most easily achieved by creating a ``CBData'' object.
+
+The computational details are controlled by setting the \texttt{control} argument.
+It should be a list with parameter settings; the simplest way to generate a correct
+list is a call to the \texttt{soControl()} function.
+\texttt{S} gives the basis of the mixing distribution -- its rows are all the
+possible non-decreasing vectors (see below for how it is obtained). \texttt{Q}
+is the mixing distribution, it is a $G$-dimensional matrix ($G$ is the number 
+of treatment groups). For the ISDM method it is initialized so that the constant vectors of $S$
+are given equal probability ($H_0$ puts weight only on the constant vectors),
+that is $Q[0,0,\ldots,0]= Q[1,1,\ldots,1]= \cdots =Q[N,N,\ldots,N]=1/(N+1)$. For
+the EM method we have to put some weight on all possible $\bv$ vectors, because
+it changes $Q$ only multiplicatively.
+    
+\begin{flushleft} \small\label{scrap8}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Order-restricted MLE assuming marginal compatibility@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{SO.mc.est} computes the nonparametric maximum likelihood estimate of@\\
+\mbox{}\verb@#'the distribution of the number of responses in a cluster \eqn{P(R=r|n)} under@\\
+\mbox{}\verb@#'a stochastic ordering constraint. Umbrella ordering can be specified using@\\
+\mbox{}\verb@#'the \code{turn} parameter.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Two different algorithms: EM and ISDM are implemented. In general, ISDM (the@\\
+\mbox{}\verb@#'default) should be faster, though its performance depends on the tuning@\\
+\mbox{}\verb@#'parameter \code{max.directions}: values that are too low or too high slow the@\\
+\mbox{}\verb@#'algorithm down.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{SO.mc.est} allows extension to an umbrella ordering: \eqn{D_1 \geq^{st}@\\
+\mbox{}\verb@#'\cdots \geq^{st} D_k \leq^{st} \cdots \leq^{st} D_n}{D_1 >= \ldots >= D_k <=@\\
+\mbox{}\verb@#'\ldots <= D_n} by specifying the value of \eqn{k} as the \code{turn}@\\
+\mbox{}\verb@#'parameter. This is an experimental feature, and at this point none of the@\\
+\mbox{}\verb@#'other functions can handle umbrella orderings.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@useDynLib CorrBin, .registration=TRUE@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats xtabs@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata an object of class \code{\link{CBData}}.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param turn integer specifying the peak of the umbrella ordering (see@\\
+\mbox{}\verb@#'Details). The default corresponds to a non-decreasing order.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param control an optional list of control settings, usually a call to@\\
+\mbox{}\verb@#'\code{\link{soControl}}.  See there for the names of the settable control@\\
+\mbox{}\verb@#'values and their effect.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with components:@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Components \code{Q} and \code{D} are unlikely to be needed by the user.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{MLest}{data frame with the maximum likelihood estimates of@\\
+\mbox{}\verb@#'\eqn{P(R_i=r|n)}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Q}{numeric matrix; estimated weights for the mixing distribution}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{D}{numeric matrix; directional derivative of the log-likelihood}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{loglik}{the achieved value of the log-likelihood}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{converge}{a 2-element vector with the achived relative error and@\\
+\mbox{}\verb@#'the performed number of iterations}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{soControl}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Szabo A, George EO. (2009) On the Use of Stochastic Ordering to@\\
+\mbox{}\verb@#'Test for Trend with Clustered Binary Data. \emph{Biometrika}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords nonparametric models@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'  data(shelltox)@\\
+\mbox{}\verb@#'  ml <- SO.mc.est(shelltox, control=soControl(eps=0.01, method="ISDM"))@\\
+\mbox{}\verb@#'  attr(ml, "converge")@\\
+\mbox{}\verb@#'  @\\
+\mbox{}\verb@#'  require(lattice)@\\
+\mbox{}\verb@#'  panel.cumsum <- function(x,y,...){@\\
+\mbox{}\verb@#'    x.ord <- order(x)@\\
+\mbox{}\verb@#'    panel.xyplot(x[x.ord], cumsum(y[x.ord]), ...)}@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'  xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=ml, type="s",@\\
+\mbox{}\verb@#'       panel=panel.superpose, panel.groups=panel.cumsum,@\\
+\mbox{}\verb@#'       as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),@\\
+\mbox{}\verb@#'       xlab="Number of responses", ylab="Cumulative Probability R(R>=r|N=n)",@\\
+\mbox{}\verb@#'       ylim=c(0,1.1), main="Stochastically ordered estimates\n with marginal compatibility")@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@SO.mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap9}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@SO.mc.est <- function(cbdata, turn=1, control=soControl()){ @\\
+\mbox{}\verb@  tab <- xtabs(Freq~factor(ClusterSize,levels=1:max(ClusterSize))+@\\
+\mbox{}\verb@                factor(NResp,levels=0:max(ClusterSize))+Trt, data=cbdata)@\\
+\mbox{}\verb@        size <- dim(tab)[1]@\\
+\mbox{}\verb@        ntrt <- dim(tab)[3]@\\
+\mbox{}\verb@        ntot <- sum(tab)@\\
+\mbox{}\verb@  storage.mode(tab) <- "double"@\\
+\mbox{}\verb@        Q <- array(0, dim=rep(size+1,ntrt))@\\
+\mbox{}\verb@        storage.mode(Q) <- "double"@\\
+\mbox{}\verb@          @\\
+\mbox{}\verb@        S <- DownUpMatrix(size, ntrt, turn)@\\
+\mbox{}\verb@        storage.mode(S) <- "integer"@\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@        if ((control$start=="H0")&(control$method=="EM")){@\\
+\mbox{}\verb@          warning("The EM algorithm can only use 'start=uniform'. Switching options.")@\\
+\mbox{}\verb@          start <- "uniform"@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@        if (control$start=="H0"){@\\
+\mbox{}\verb@          const.row <- matrix(0:size, nrow=size+1, ncol=ntrt)@\\
+\mbox{}\verb@          Q[const.row+1] <- 1/(size+1)@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@        else {  #start=="uniform"@\\
+\mbox{}\verb@          Q[S+1] <- 1/(nrow(S))@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@  res0 <- switch(control$method,@\\
+\mbox{}\verb@      EM = .Call("MixReprodQ", Q, S, tab, as.integer(control$max.iter), as.double(control$eps), @\\
+\mbox{}\verb@                                   as.integer(control$verbose), PACKAGE="CorrBin"),@\\
+\mbox{}\verb@      ISDM = .Call("ReprodISDM", Q, S, tab, as.integer(control$max.iter), as.integer(control$max.directions),@\\
+\mbox{}\verb@                   as.double(control$eps),  as.integer(control$verbose), PACKAGE="CorrBin"))@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@  names(res0) <- c("MLest","Q","D","loglik", "converge")@\\
+\mbox{}\verb@  names(res0$converge) <- c("rel.error", "n.iter")@\\
+\mbox{}\verb@  res <- res0$MLest@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@  dimnames(res) <- list(NResp=0:size, ClusterSize=1:size, Trt=1:ntrt)@\\
+\mbox{}\verb@  res <- as.data.frame.table(res)@\\
+\mbox{}\verb@  names(res) <- c("NResp","ClusterSize","Trt","Prob") @\\
+\mbox{}\verb@  res$NResp  <- as.numeric(as.character(res$NResp))@\\
+\mbox{}\verb@  res$ClusterSize  <- as.numeric(as.character(res$ClusterSize))@\\
+\mbox{}\verb@  res <- res[res$NResp <= res$ClusterSize,]@\\
+\mbox{}\verb@  levels(res$Trt) <- levels(cbdata$Trt)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  attr(res, "loglik") <- res0$loglik@\\
+\mbox{}\verb@  attr(res, "converge") <- res0$converge@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@SO.mc.est@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@DownUpMatrix@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@ReprodISDM@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The values supplied in the call to \texttt{soControl} replace the defaults and 
+a list with all possible arguments is returned. The returned list is used as 
+the control argument to the \texttt{SO.mc.est} function.
+
+The \texttt{method} argument allows to select either the EM, or the ISDM method.
+\begin{flushleft} \small\label{scrap10}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Control values for order-constrained fit@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The values supplied in the function call replace the defaults and a list with@\\
+\mbox{}\verb@#'all possible arguments is returned.  The returned list is used as the control@\\
+\mbox{}\verb@#'argument to the \code{\link{mc.est}}, \code{\link{SO.LRT}}, and@\\
+\mbox{}\verb@#'\code{\link{SO.trend.test}} functions.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param method a string specifying the maximization method@\\
+\mbox{}\verb@#'@{\tt @}\verb@param eps a numeric value giving the maximum absolute error in the@\\
+\mbox{}\verb@#'log-likelihood@\\
+\mbox{}\verb@#'@{\tt @}\verb@param max.iter an interger specifying the maximal number of iterations@\\
+\mbox{}\verb@#'@{\tt @}\verb@param max.directions an integer giving the maximal number of directions@\\
+\mbox{}\verb@#'considered at one step of the ISDM method.  If zero or negative, it is set to@\\
+\mbox{}\verb@#'the number of non-empty cells. A value of 1 corresponds to the VDM algorithm.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param start a string specifying the starting setup of the mixing@\\
+\mbox{}\verb@#'distribution; "H0" puts weight only on constant vectors (corresponding to the@\\
+\mbox{}\verb@#'null hypothesis of no change), "uniform" puts equal weight on all elements.@\\
+\mbox{}\verb@#'Only a "uniform" start can be used for the "EM" algorithm.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param verbose a logical value; if TRUE details of the optimization are@\\
+\mbox{}\verb@#'shown.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a list with components for each of the possible arguments.@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{mc.est}}, \code{\link{SO.LRT}},@\\
+\mbox{}\verb@#'\code{\link{SO.trend.test}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords models@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'# decrease the maximum number iterations and@\\
+\mbox{}\verb@#'# request the "EM" algorithm@\\
+\mbox{}\verb@#' soControl(method="EM", max.iter=100)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@SO.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap11}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@soControl <- function(method=c("ISDM","EM"), eps=0.005, max.iter=5000, @\\
+\mbox{}\verb@      max.directions=0, start=ifelse(method=="ISDM", "H0", "uniform"), verbose=FALSE){@\\
+\mbox{}\verb@  method <- match.arg(method)@\\
+\mbox{}\verb@  start <- match.arg(start, c("uniform","H0"))@\\
+\mbox{}\verb@  list(method = match.arg(method), eps = eps, max.iter = max.iter,@\\
+\mbox{}\verb@       max.directions = max.directions, start=start, verbose = verbose)@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The \texttt{makeSmatrix} function creates a matrix the rows of which are all the
+possible non-decreasing vectors. The idea is the following: there is a one-to-one
+correspondence between a non-decreasing sequence of length $k$ using the values
+$0,1,\dots, n$ and combinations of $k$ elements out of $n+k$. Imagine $n$ balls and
+$k$ sticks; each of the possible arrangements of theses $n+k$ objects into a row 
+is a combination. We can transform it to a nondecreasing sequence by counting the
+number of balls to the left of the first stick, second stick, etc. For example,
+with $n=5$ and $k=4$, a possible arrangement is $\circ | \circ ||\circ\circ\circ|$; 
+this corresponds to the sequence (1,2,2,5). The \texttt{Comb} function generates
+all possible combinations of $k$ elements out of $N=n+k$ elements by recursion
+on $N$, and when a combination is ready, it transforms it to a non-decreasing
+sequence and puts it into the output matrix. The code for generating the combinations
+was written by  Joe Sawada, 1997  and obtained from the Combinatorial Object
+Server (http://theory.cs.uvic.ca/inf/comb/CombinationsInfo.html), but was rewritten
+without nested functions.
+
+\begin{flushleft} \small\label{scrap12}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@void Comb(int j, int m, int nn, int kk, int nS, int* a, int* pos, SEXP res) {@\\
+\mbox{}\verb@        int i, val, step;@\\
+\mbox{}\verb@        if (j > nn) {  @\\
+\mbox{}\verb@        @\hbox{$\langle\,${\itshape Convert 'a' to non-decreasing sequence and insert into 'res'}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    }           @\\
+\mbox{}\verb@        else {@\\
+\mbox{}\verb@                if (kk-m < nn-j+1) {@\\
+\mbox{}\verb@                        a[j] = 0; Comb(j+1, m, nn, kk, nS, a, pos, res);@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@                if (m<kk) {@\\
+\mbox{}\verb@                        a[j] = 1; Comb(j+1, m+1, nn, kk, nS, a, pos, res);@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@        }@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@Comb@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap13}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Convert 'a' to non-decreasing sequence and insert into 'res'}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@                val = 0;@\\
+\mbox{}\verb@                step = 0;@\\
+\mbox{}\verb@                for (i=1; i<=nn; i++) {@\\
+\mbox{}\verb@                        if (a[i]==1){@\\
+\mbox{}\verb@                                INTEGER(res)[*pos+step]=val;@\\
+\mbox{}\verb@                                step += nS;@\\
+\mbox{}\verb@                        }@\\
+\mbox{}\verb@                        else { //a[i]=0;@\\
+\mbox{}\verb@                                val++;@\\
+\mbox{}\verb@                        }@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@            *pos = *pos+1;@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap14}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SEXP makeSmatrix(SEXP size, SEXP ntrt){@\\
+\mbox{}\verb@int *a, i, pos, nn, kk, nS;@\\
+\mbox{}\verb@SEXP res;@\\
+\mbox{}\verb@   nn = asInteger(size) + asInteger(ntrt);@\\
+\mbox{}\verb@   kk = asInteger(ntrt);@\\
+\mbox{}\verb@   a = calloc(nn+1, sizeof(int));@\\
+\mbox{}\verb@   for (i=1; i<=kk; i++) a[i]=1;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@   nS = choose(nn,kk);@\\
+\mbox{}\verb@   PROTECT(res = allocMatrix(INTSXP, nS, kk));@\\
+\mbox{}\verb@   pos = 0;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   Comb(1, 0, nn, kk, nS, a, &pos, res);@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@   UNPROTECT(1);@\\
+\mbox{}\verb@   free(a);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@  return res;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@makeSmatrix@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@Comb@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{DownUpMatrix} extends the capabilities of \texttt{makeSmatrix} to generate
+vectors that have $q$ non-increasing elements followed $k-q$ non-decreasing
+elements.
+
+The general outline of the algorithm is as follows ($n$ is \texttt{size}, 
+$k$ is \texttt{ntrt}, and $q$ is \texttt{turn}):
+\begin{flushleft} \small\label{scrap15}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Internal CorrBin objects@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Internal CorrBin objects.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'These are not to be called by the user.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@#'@{\tt @}\verb@aliases .required DownUpMatrix@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords internal@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@DownUpMatrix@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap16}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@DownUpMatrix <- function(size, ntrt, turn){@\\
+\mbox{}\verb@  if ((turn<1)|(turn>ntrt)) stop("turn should be between 1 and ntrt")@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Take care of turn=1 and turn=ntrt}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Generate non-increasing sequences of length turn with values $\leq$ size}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  res2list <- list()@\\
+\mbox{}\verb@  for (sq in 0:size){@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape Generate non-decreasing sequences of length ntrt-turn with values between sq and size}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Combine the two parts of the sequences}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@DownUpMatrix@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+Non-increasing sequences are generated by subtracting non-decreasing sequences
+from  $n$:
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap17}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Generate non-increasing sequences of length turn with values $\leq$ size}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  res1 <- .Call("makeSmatrix", as.integer(size), as.integer(turn),PACKAGE="CorrBin")@\\
+\mbox{}\verb@  res1 <- size - res1;@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@makeSmatrix@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{res2list} will be a list of matrices defining non-decreasing sequences
+for all possible starting points $s_q$. We get them by generating all non-
+decreasing sequences with values $\leq n-s_q$ and then adding $s_q$. 
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap18}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Generate non-decreasing sequences of length ntrt-turn with values between sq and size}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  S <- .Call("makeSmatrix", as.integer(size-sq), as.integer(ntrt-turn),PACKAGE="CorrBin")@\\
+\mbox{}\verb@  res2list <- c(res2list, list(sq+S))@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@makeSmatrix@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+To match all possible starts with all possible ends, we split \texttt{res1} into
+a list based on the last value ($s_q$) and do a Cartesian product (everything-to-
+everything merge) with the corresponding elements of \texttt{res2list}:
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap19}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Combine the two parts of the sequences}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  res1list <- by(res1, res1[,turn], function(x)x)@\\
+\mbox{}\verb@  res <- mapply(merge, res1list, res2list, MoreArgs=list(by=NULL), SIMPLIFY=FALSE)@\\
+\mbox{}\verb@  res <- data.matrix(do.call(rbind, res))@\\
+\mbox{}\verb@  rownames(res) <- NULL@\\
+\mbox{}\verb@  colnames(res) <- NULL@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+When $q=1$ or $q=k$, no merging is needed and we can speed up the algorithm by
+treating them as special cases:
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap20}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Take care of turn=1 and turn=ntrt}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  if (turn==1){@\\
+\mbox{}\verb@     res <- .Call("makeSmatrix", as.integer(size), as.integer(ntrt),PACKAGE="CorrBin")@\\
+\mbox{}\verb@     return(res)@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  if (turn==ntrt){@\\
+\mbox{}\verb@     res <- .Call("makeSmatrix", as.integer(size), as.integer(ntrt),PACKAGE="CorrBin")@\\
+\mbox{}\verb@     return(size - res)@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@makeSmatrix@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsection{ISDM estimation}
+
+In the ISDM algorithm, at each step we move toward a new mixing distribution
+by maximizing
+\begin{equation}
+l\big(\alpha_0Q^{(t)}+\sum_{i}\alpha_i\delta_{\bv^i_t}\big),
+\end{equation}
+where $\bv^1_t, \ldots, \bv^m_t$ corresponding to the at
+most $m_0$ largest positive values of the directional derivative 
+$D_{Q^{(t)}}(\bv)$, where
+\begin{equation}\label{E:D}
+D_Q(\bv ) = \sum_{g,i}\frac{h(r_{g,i},v_g,n_{g,i})}{\sum_\bq
+h(r_{g,i},q_g,n_{g,i})Q(\bq)}-N.
+\end{equation}
+
+First we define a variety of help-functions.
+
+\texttt{GetTabElem} allows easy
+access using three indices to the 3-dimensional data matrix \texttt{tab} that gets 
+converted to a long vector when it is passed from R. Another option would have
+been to set up a C-style array of pointers to pointers to rows.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap21}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@double GetTabElem(SEXP tab, int size, int n, int r, int j){@\\
+\mbox{}\verb@         return REAL(tab)[(n-1)+size*(r+(size+1)*j)];@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{HyperTable} makes a 3-dimensional C-style array with the hyper-geometric probabilities
+$h(i,j,k) =  {\binom{j}{i}}{\binom{N-j}{k-i}} / {\binom{N}{k}}$. R's \texttt{dhyper}
+function does the actual calculations.
+
+\begin{flushleft} \small\label{scrap22}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@double ***HyperTable(int size){@\\
+\mbox{}\verb@// dhyper(i, j, size-j, k), i=0:size; j=0:size; k=0:size        @\\
+\mbox{}\verb@ double ***res;@\\
+\mbox{}\verb@ int i, j, k;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ res = malloc((size+1)*sizeof(double*));@\\
+\mbox{}\verb@ for (i=0; i<=size; i++){@\\
+\mbox{}\verb@         res[i] = malloc((size+1)*sizeof(double*));@\\
+\mbox{}\verb@         for (j=0; j<=size; j++) res[i][j] = calloc(size+1, sizeof(double));@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for (i=0; i<=size; i++){@\\
+\mbox{}\verb@         for (j=i; j<=size; j++){@\\
+\mbox{}\verb@                 for (k=i; k<=size-j+i; k++)@\\
+\mbox{}\verb@                         res[i][j][k] = dhyper(i, j, size-j, k, 0); @\\
+\mbox{}\verb@                 }@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ return res;    @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@HyperTable@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The matrix $S$ created by \texttt{makeSmatrix} contains the numeric values of the
+non-decreasing vectors. \texttt{IndexVector} and \texttt{IndexVectorC} create a vector 
+of indices corresponding to the location of each row of $S$ in a vectorized 
+G-dimensional $N\times N\times\cdots\times N$ array ($Q$). That is if a row
+of $S$ is $(0,1,4)$, then the corresponding element of the index vector will 
+point to the [0,1,4]th element of a $N\times N\times N$ matrix that is represented
+by a long (length$=N^3$) vector. This setup is needed as the number of dimensions
+of $Q$ depends on the number of treatments, so it is not known at compile time.
+
+The difference between the two functions is that
+\texttt{IndexVector} works for an R-style matrix (that has been converted to a
+vector during the transfer), while \texttt{IndexVectorC} works for a C-style matrix 
+(an array of pointers to arrays).
+
+\begin{flushleft} \small\label{scrap23}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@int static *IndexVectorC(int **S, int N, int G, int nrowS){@\\
+\mbox{}\verb@ int *idx, i, j;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ idx = calloc(nrowS, sizeof(int));@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for (j=G-1; j>=0; j--){@\\
+\mbox{}\verb@   for (i=0; i<nrowS; i++){@\\
+\mbox{}\verb@           idx[i] = N*idx[i] + S[i][j];@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ return idx;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@int static *IndexVector(SEXP S, int N, int G, int nrowS){@\\
+\mbox{}\verb@ int *idx, i, j,  start;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ idx = calloc(nrowS, sizeof(int));@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ for (j=G-1, start=(G-1)* nrowS; j>=0; j--, start -= nrowS){@\\
+\mbox{}\verb@   for (i=0; i<nrowS; i++){@\\
+\mbox{}\verb@           idx[i] = N*idx[i] + INTEGER(S)[start+i];@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ return idx;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@IndexVector,@\nobreak\ \NWtxtIdentsNotUsed, \verb@IndexVectorC@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{CalcMarginals} calculates the marginal probabilities in the denominator
+of \eqref{E:Qupdate}
+\begin{equation}
+ Q_{gn}(r)= P(r \text{ responses } | \text{treatment }g, \text{cluster size }n)=
+ \sum_\bq h(r,q_g,n) Q^{(t)}(\bq)
+\end{equation}
+for $j=1,\ldots, G$, $n=1,\ldots, N$, $r=0,\ldots,n$. It returns a 3-dimensional 
+C-style matrix.
+
+\begin{flushleft} \small\label{scrap24}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@double ***CalcMarginals(SEXP S, SEXP Q, double ***ht, int *idx, int ntrt, int size, int nS){@\\
+\mbox{}\verb@   int j, i, n, x, start, sj;@\\
+\mbox{}\verb@         double ***marg;@\\
+\mbox{}\verb@         //ht is from HyperTable, it is passed to avoid recalculation@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         marg = malloc(ntrt*sizeof(double*));@\\
+\mbox{}\verb@         for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@                 marg[j] = malloc((size+1)*sizeof(double*));@\\
+\mbox{}\verb@                 for (n=1; n<=size; n++) marg[j][n] = calloc(n+1, sizeof(double));@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         for (i=0; i<nS; i++){@\\
+\mbox{}\verb@                 for (j=0, start=0; j<ntrt; j++, start+=nS){@\\
+\mbox{}\verb@                         sj = INTEGER(S)[start+i];@\\
+\mbox{}\verb@                         for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                                 for (x=imax2(0,sj-size+n); x<=imin2(sj,n); x++){@\\
+\mbox{}\verb@                                         marg[j][n][x] += REAL(Q)[idx[i]]*ht[x][n][sj];@\\
+\mbox{}\verb@                                 }@\\
+\mbox{}\verb@                         }@\\
+\mbox{}\verb@                 }@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@  return marg;@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@CalcMarginals@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@HyperTable@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{CalcD} calculates the directional derivative of the log-likelihood into
+the direction of each possible $\bv$ (that is for each row of $S$) as defined
+in \eqref{E:D}. Note that the denominator contains the marginal probabilities 
+defined above. The function does not have a return value, the first parameter 
+$D$ is modified (or rather, the value it points to is modified).
+
+\begin{flushleft} \small\label{scrap25}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@void CalcD(SEXP D, SEXP S, SEXP tab, int *idx, double ***ht, double ***marg, int ntrt, @\\
+\mbox{}\verb@           int nS, int size, int ntot){@\\
+\mbox{}\verb@   int j, i, n, x, sj, start, t;@\\
+\mbox{}\verb@         //ntot = sum(tab) -- passing it avoids having to recalculate it@\\
+\mbox{}\verb@         for (i=0; i<nS; i++){@\\
+\mbox{}\verb@                 REAL(D)[idx[i]] = -ntot;@\\
+\mbox{}\verb@                 for (j=0, start=0; j<ntrt; j++, start+=nS){@\\
+\mbox{}\verb@                         sj = INTEGER(S)[start+i];@\\
+\mbox{}\verb@                         for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                                 for (x=imax2(0,sj-size+n); x<=imin2(sj,n); x++){@\\
+\mbox{}\verb@                                         t = GetTabElem(tab,size,n,x,j);@\\
+\mbox{}\verb@                                         if (t>0) REAL(D)[idx[i]] += t*ht[x][n][sj]/marg[j][n][x];@\\
+\mbox{}\verb@                                 }@\\
+\mbox{}\verb@                         }@\\
+\mbox{}\verb@                 }@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@calcD@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{maxD} finds the largest value of the directional derivative $D$ --
+it will be used for error rate estimation, since
+\begin{equation}\label{E:relerror}
+  l(\hat{Q}|\mathbf{X}) - l(Q|\mathbf{X}) \leq  \max_\bv D_Q(\bv).
+\end{equation}
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap26}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@double maxD(SEXP D, int *idx, int nS){@\\
+\mbox{}\verb@   int i;@\\
+\mbox{}\verb@   double currmax, val;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   currmax = 0;@\\
+\mbox{}\verb@   for (i=0; i<nS; i++){@\\
+\mbox{}\verb@           val = REAL(D)[idx[i]];@\\
+\mbox{}\verb@           if (val > currmax) currmax = val; @\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   return currmax;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@MaxD@\nobreak\ \NWtxtIdentsNotUsed.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{CalcTopD} gets the vectors from $S$ corresponding to the at most 
+`limit' positive D values (that is it calculates $\bv^1_t, \ldots, \bv^m_t$).
+The return value is a C-style matrix with each row a non-decreasing vector.
+The number $m$ of the selected vectors is returned through the pointer 
+\texttt{nselect}.
+
+\begin{flushleft} \small\label{scrap27}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@int **CalcTopD(SEXP D, SEXP S, int *idx, int limit, int *nselect, int ntrt, int nS){@\\
+\mbox{}\verb@         int **res, nmx, i, j, pos, start;@\\
+\mbox{}\verb@         double *posDvec,  dcut;@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@           // count the number of non-negative elements in D@\\
+\mbox{}\verb@     nmx = 0;@\\
+\mbox{}\verb@     for (i=0; i<nS; i++){@\\
+\mbox{}\verb@             if (REAL(D)[idx[i]] >= 0){@\\
+\mbox{}\verb@                     nmx++;@\\
+\mbox{}\verb@             }@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@     if (nmx == 0){@\\
+\mbox{}\verb@             res = 0;@\\
+\mbox{}\verb@             *nselect = 0;@\\
+\mbox{}\verb@             return res;@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@     @\\
+\mbox{}\verb@     if (nmx > limit){ //find the limit-th largest D@\\
+\mbox{}\verb@                 posDvec = malloc(nmx*sizeof(double));@\\
+\mbox{}\verb@                 pos = 0;@\\
+\mbox{}\verb@             for (i=0; i<nS; i++){@\\
+\mbox{}\verb@                     if (REAL(D)[idx[i]] >= 0){@\\
+\mbox{}\verb@                             posDvec[pos] = -REAL(D)[idx[i]];  //negation is needed, because rPsort uses increasing order@\\
+\mbox{}\verb@                             pos++;@\\
+\mbox{}\verb@                     }@\\
+\mbox{}\verb@             }@\\
+\mbox{}\verb@             rPsort(posDvec, nmx, limit);@\\
+\mbox{}\verb@             dcut = -posDvec[limit];  //the cutoff for determining the limit-th largest values@\\
+\mbox{}\verb@             free(posDvec);@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@     else dcut = 0;@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@     nmx = imin2(limit, nmx);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@         res = (int**) Calloc(nmx, int*);@\\
+\mbox{}\verb@         pos = 0;@\\
+\mbox{}\verb@     for (i=0; i<nS; i++){@\\
+\mbox{}\verb@             if (pos >= nmx) break;@\\
+\mbox{}\verb@             if (REAL(D)[idx[i]] < dcut) continue;@\\
+\mbox{}\verb@             res[pos] =(int*) Calloc(ntrt, int);  //copy the ith row of S@\\
+\mbox{}\verb@             for (j=0, start=0; j<ntrt; j++, start+=nS) res[pos][j] = INTEGER(S)[start+i];@\\
+\mbox{}\verb@             pos++;@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@     *nselect = nmx;@\\
+\mbox{}\verb@     return res;         @\\
+\mbox{}\verb@ } @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@CalcTopD@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{NegLogLik} calculates the negative log-likelihood at a potential 
+new mixing distribution as a function of $(\alpha_0,\alpha_1,\ldots,\alpha_m)$, where
+$\sum_{i=0}^m\alpha_i=1$ and $\alpha_i\geq 0$. To remove the sum-to-one constraint, 
+we reparameterize to $\text{par}_i=\gamma_i=\alpha_{i}/\alpha_{0}\geq 0$, $i=1,\ldots,m$.  
+With this reparametrization, $\alpha_0=1/(1+\sum\gamma_i)$ and $\alpha_i=\alpha_0\gamma_i$, $i=1,\ldots,m$,
+and the constraints are $\gamma_i\geq 0$. The potential new mixing distribution
+is 
+\begin{equation*}
+ Q^\gamma = \big(Q + \tsum_i\gamma_i\delta_{\bv^i}\big)/(1+\tsum_i\gamma_i)
+\end{equation*}
+
+The corresponding log-likelihood is
+\begin{equation}\label{E:newloglik}
+l(Q^\gamma) =
+\sum_{g,n,r} A_{gnr}\log Q^\gamma_{gn}(r) \\=
+\sum_{g,n,r} A_{gnr}\log\big(Q_{gn}(r)+\tsum_i\gamma_ih(r,v^i_g,n)\big) 
+  - N\log(1+\tsum_i\gamma_i) ,
+\end{equation}
+where $A_{gnr}$ is the observed number of clusters of size $n$ with $r$ responses
+in treatment group $g$.
+
+
+\texttt{lmS} stores the $\bv^1_t, \ldots, \bv^m_t$ vectors calculated by \texttt{CalcTopD}.
+The required variables (ntrt, size, ntot, marg, ht, lmS) will be declared as global and will be available
+for the procedure, while \texttt{tab} will be passed through the \texttt{*ex} pointer.
+
+\begin{flushleft} \small\label{scrap28}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Declare global variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@double NegLogLik(int npar, double *par, void *ex){@\\
+\mbox{}\verb@         //par[j] = (alpha_(j+1)/alpha_0), j=0,...,nmax-1@\\
+\mbox{}\verb@   int j, n, r, i, sj, x;@\\
+\mbox{}\verb@   double res, sum;@\\
+\mbox{}\verb@   SEXP tab;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   tab = (SEXP)ex;@\\
+\mbox{}\verb@   res = 0;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@           for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                   for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                           x = GetTabElem(tab,size,n,r,j);@\\
+\mbox{}\verb@                           if (x>0){@\\
+\mbox{}\verb@                                   sum = marg[j][n][r];@\\
+\mbox{}\verb@                                   for (i=0; i<npar; i++){@\\
+\mbox{}\verb@                                           sj = lmS[i][j];@\\
+\mbox{}\verb@                                           sum += par[i]*ht[r][n][sj];@\\
+\mbox{}\verb@                                   }@\\
+\mbox{}\verb@                                   res += x*log(sum);    @\\
+\mbox{}\verb@                           }@\\
+\mbox{}\verb@                   }@\\
+\mbox{}\verb@           }@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   sum = 0;@\\
+\mbox{}\verb@   for (i=0; i<npar; i++) sum += par[i];@\\
+\mbox{}\verb@   res -= ntot*log1p(sum);  //log1p(sum)=log(1+sum)@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   if (!R_FINITE(res)){@\\
+\mbox{}\verb@     res = 1e60;@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   return (-res); }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@NegLogLik@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{NegLogLikDeriv} calculates the gradient vector of the negative log-likelihood
+function defined above.
+\begin{equation}
+\frac{\partial l}{\partial \gamma_u} = \sum_{g,n,r}A_{gnr}\frac{h(r,v^u_g,n)}%
+{Q_{gn}(r)+\tsum_i\gamma_ih(r,v^i_g,n)} - \frac{N}{1+\tsum_i\gamma_i}
+\end{equation}
+
+\begin{flushleft} \small\label{scrap29}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@void NegLogLikDeriv(int npar, double *par, double *gr, void *ex){@\\
+\mbox{}\verb@   int j, n, r, i, sj, x;@\\
+\mbox{}\verb@   double alpha0, sum, ***denom;@\\
+\mbox{}\verb@   SEXP tab;@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@   tab = (SEXP)ex;@\\
+\mbox{}\verb@   //prepare the shared denominators@\\
+\mbox{}\verb@   denom = malloc(ntrt*sizeof(double*));@\\
+\mbox{}\verb@   for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@           denom[j] = malloc((size+1)*sizeof(double*));@\\
+\mbox{}\verb@           for (n=1; n<=size; n++) denom[j][n] = calloc(n+1, sizeof(double));@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@           for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                   for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                           sum = marg[j][n][r];@\\
+\mbox{}\verb@                           for (i=0; i<npar; i++){@\\
+\mbox{}\verb@                                   sj = lmS[i][j];@\\
+\mbox{}\verb@                                   sum += par[i]*ht[r][n][sj];@\\
+\mbox{}\verb@                           }@\\
+\mbox{}\verb@                           denom[j][n][r] = sum;         @\\
+\mbox{}\verb@                   }@\\
+\mbox{}\verb@           }@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   alpha0 = 1;@\\
+\mbox{}\verb@   for (i=0; i<npar; i++)  alpha0 += par[i];@\\
+\mbox{}\verb@   alpha0 = 1.0/alpha0;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@   //calc the gradients @\\
+\mbox{}\verb@   for (i=0; i<npar; i++){@\\
+\mbox{}\verb@           sum = -ntot*alpha0;@\\
+\mbox{}\verb@           for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@                   for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                           for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                                   x = GetTabElem(tab,size,n,r,j);@\\
+\mbox{}\verb@                                   if (x>0){@\\
+\mbox{}\verb@                                           sj = lmS[i][j];@\\
+\mbox{}\verb@                                           sum += x*ht[r][n][sj]/denom[j][n][r];@\\
+\mbox{}\verb@                                   }@\\
+\mbox{}\verb@                           }@\\
+\mbox{}\verb@                   }@\\
+\mbox{}\verb@           }@\\
+\mbox{}\verb@           gr[i] = -sum;@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@           for (n=1; n<=size; n++) free(denom[j][n]);@\\
+\mbox{}\verb@           free(denom[j]);@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   free(denom); @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\texttt{UpdateQ} performs the updating step of the ISDM algorithm once the optimal
+$\alpha_i$ values have been found (the input parameter \texttt{g} has the reparameterized 
+\texttt{par} values at the optimum): the mixing
+distribution is moved toward the values with the largest directional derivative.
+\begin{equation}
+Q^{(t+1)} =  \big(Q + \tsum_i\gamma_i\delta_{\bv^i}\big)/(1+\tsum_i\gamma_i)
+\end{equation}
+\texttt{lmS\_idx} is the index vector corresponding to the location in $Q$ of the 
+selected directions.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap30}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@void UpdateQ(SEXP Q, double *g, int nS, int nmax, int *idx, int *lmS_idx){@\\
+\mbox{}\verb@   double alpha0;@\\
+\mbox{}\verb@   int i;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   alpha0 = 1;@\\
+\mbox{}\verb@   for (i=0; i<nmax; i++) alpha0 += g[i];@\\
+\mbox{}\verb@   alpha0 = 1/alpha0;@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   for (i=0; i<nS; i++) REAL(Q)[idx[i]] *= alpha0;@\\
+\mbox{}\verb@   for (i=0; i<nmax; i++) REAL(Q)[lmS_idx[i]] += alpha0 * g[i];@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@UpdateQ@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\texttt{UpdateMarginals} updates the marginal distribution calculated by
+\texttt{CalcMarginals} after each iterative step -- this is faster than 
+recalculating them again. \texttt{lmS} contains the selected directions.
+\begin{equation}
+Q^\gamma_{gn}(r) = \big(Q_{gn}(r) + \tsum_i\gamma_if(r,v^i_g,n)\big) \frac{1}{1+\tsum_i\gamma_i}
+\end{equation}
+
+\begin{flushleft} \small\label{scrap31}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@ void UpdateMarginals(double ***marg, double *g, double ***ht, int **lmS,@\\
+\mbox{}\verb@                      int ntrt, int size, int nmax){@\\
+\mbox{}\verb@   double alpha0;@\\
+\mbox{}\verb@   int i, j, n, r, sj;@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    alpha0 = 1;@\\
+\mbox{}\verb@        for (i=0; i<nmax; i++){@\\
+\mbox{}\verb@                alpha0 += g[i];@\\
+\mbox{}\verb@        }@\\
+\mbox{}\verb@        alpha0 = 1/alpha0;@\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@        for (j=0; j<ntrt; j++){@\\
+\mbox{}\verb@                for (n=1; n<=size; n++){@\\
+\mbox{}\verb@                        for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                                for (i=0; i<nmax; i++){@\\
+\mbox{}\verb@                                        sj = lmS[i][j];@\\
+\mbox{}\verb@                                        marg[j][n][r] += g[i] * ht[r][n][sj];@\\
+\mbox{}\verb@                                }@\\
+\mbox{}\verb@                                marg[j][n][r] *= alpha0;@\\
+\mbox{}\verb@                        }@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@        }        @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@UpdateMarginals@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+Finally, \texttt{ReprodISDM} sets up all the required matrices, and runs the
+ISDM iterations while monitoring the error. The maximization of the log-likelihood
+is done by the built-in R function \texttt{lbfgsb} which implements the quasi-Newton 
+method of Byrd95 that allows boundary constraints for optimization. It is
+actually a minimization routine, so the negative likelihood defined above is used.
+The \texttt{MaxDirection} parameter controls the number of directions which
+are considered at each step of the ISDM algorithm. Values of 0 (or less) mean
+setting it to the number of non-empty cells in the data. The variables required
+by the log-likelihood function and its derivative are declared global.
+
+\begin{flushleft} \small\label{scrap32}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Declare global variables}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@int ntrt, size, **lmS;@\\
+\mbox{}\verb@double ntot, ***ht, ***marg;@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap33}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SEXP ReprodISDM(SEXP Q, SEXP S, SEXP tab, SEXP MaxIter, SEXP MaxDirections, @\\
+\mbox{}\verb@                SEXP eps, SEXP verbose){@\\
+\mbox{}\verb@ SEXP dims, D,  res, margSXP, tmp;@\\
+\mbox{}\verb@ int i, j, n, r, *idx, nS, niter, nmax, fncount, grcount, fail, @\\
+\mbox{}\verb@     *boundtype,  limit, *lmS_idx, nenforced;@\\
+\mbox{}\verb@ double rel_error, *gamma, *lower, *upper, NLLmin;@\\
+\mbox{}\verb@ char msg[60];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(dims = GET_DIM(tab));@\\
+\mbox{}\verb@   size = INTEGER(dims)[0];@\\
+\mbox{}\verb@   ntrt = INTEGER(dims)[2];@\\
+\mbox{}\verb@ UNPROTECT(1);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(dims = GET_DIM(S));@\\
+\mbox{}\verb@   nS = INTEGER(dims)[0];@\\
+\mbox{}\verb@ UNPROTECT(1);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(D = duplicate(Q));@\\
+\mbox{}\verb@ for (i=0; i<length(Q); i++) REAL(D)[i] = 0;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ idx = IndexVector(S, size+1, ntrt, nS);@\\
+\mbox{}\verb@ ht = HyperTable(size);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ ntot=0;@\\
+\mbox{}\verb@ for (i=0; i<length(tab); i++) ntot += REAL(tab)[i];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ limit = INTEGER(coerceVector(MaxDirections, INTSXP))[0];@\\
+\mbox{}\verb@ if (limit <= 0){  //set it to the number of non-empty cells@\\
+\mbox{}\verb@   limit=0;@\\
+\mbox{}\verb@   for (i=0; i<length(tab); i++){@\\
+\mbox{}\verb@           if (REAL(tab)[i]>0) limit++;@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ marg = CalcMarginals(S, Q, ht, idx, ntrt, size, nS);@\\
+\mbox{}\verb@ CalcD(D, S, tab, idx, ht, marg, ntrt, nS, size, ntot);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ rel_error = maxD(D, idx, nS);@\\
+\mbox{}\verb@ niter = 0;@\\
+\mbox{}\verb@ nenforced = 0;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ while (niter < asInteger(MaxIter) && rel_error > asReal(eps)){@\\
+\mbox{}\verb@         R_CheckUserInterrupt();@\\
+\mbox{}\verb@         niter++;@\\
+\mbox{}\verb@     @\\
+\mbox{}\verb@         lmS = CalcTopD(D, S, idx, limit, &nmax, ntrt, nS);@\\
+\mbox{}\verb@         lmS_idx = IndexVectorC(lmS, size+1, ntrt, nmax);@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         if (nmax == limit) nenforced++;@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         gamma = (double*) Calloc(nmax, double); @\\
+\mbox{}\verb@         lower = (double*) Calloc(nmax, double); @\\
+\mbox{}\verb@         upper = (double*) Calloc(nmax, double); @\\
+\mbox{}\verb@         boundtype = (int*) Calloc(nmax, int); @\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         for (i=0; i<nmax; i++){@\\
+\mbox{}\verb@                 gamma[i] = 0;@\\
+\mbox{}\verb@                 lower[i] = 0;@\\
+\mbox{}\verb@                 upper[i] = imin2(1e6/nmax, 100); // => alpha0>1e-6@\\
+\mbox{}\verb@                 boundtype[i] = 1; //lower  bound only@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         @\\
+\mbox{}\verb@         lbfgsb(nmax, 5, gamma, lower, upper, boundtype, &NLLmin, NegLogLik, NegLogLikDeriv,@\\
+\mbox{}\verb@                &fail, tab, 1e5, 0, &fncount, &grcount, 1000, msg, asInteger(verbose), 10);@\\
+\mbox{}\verb@                @\\
+\mbox{}\verb@         UpdateMarginals(marg, gamma, ht, lmS, ntrt, size, nmax);@\\
+\mbox{}\verb@   CalcD(D, S, tab, idx, ht, marg, ntrt, nS, size, ntot);@\\
+\mbox{}\verb@         UpdateQ(Q, gamma, nS, nmax, idx, lmS_idx); //only needed to be able to return Q@\\
+\mbox{}\verb@         rel_error = maxD(D, idx, nS);@\\
+\mbox{}\verb@         if (asInteger(verbose)==1)@\\
+\mbox{}\verb@           Rprintf("Step %d, rel.error=%f, NLL=%f\n", niter, rel_error, NLLmin);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@                 @\\
+\mbox{}\verb@         Free(gamma);@\\
+\mbox{}\verb@         Free(lower);@\\
+\mbox{}\verb@         Free(upper);@\\
+\mbox{}\verb@         Free(boundtype);@\\
+\mbox{}\verb@         for (i=0; i<nmax; i++){@\\
+\mbox{}\verb@                 Free(lmS[i]);@\\
+\mbox{}\verb@         }@\\
+\mbox{}\verb@         Free(lmS);@\\
+\mbox{}\verb@         free(lmS_idx);@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ free(idx);@\\
+\mbox{}\verb@ for(j=0; j<=size; j++){@\\
+\mbox{}\verb@          for (n=0; n<=size; n++) free(ht[j][n]);@\\
+\mbox{}\verb@          free(ht[j]);@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@ free(ht);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(margSXP = allocVector(REALSXP, ntrt*size*(size+1)));@\\
+\mbox{}\verb@ PROTECT(dims = allocVector(INTSXP,3));@\\
+\mbox{}\verb@    INTEGER(dims)[0] = size+1;     INTEGER(dims)[1] = size;     INTEGER(dims)[2] = ntrt;   @\\
+\mbox{}\verb@    i = 0;@\\
+\mbox{}\verb@    for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@          for (n=1; n<=size; n++){ @\\
+\mbox{}\verb@                  for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                          REAL(margSXP)[i] = marg[j][n][r];@\\
+\mbox{}\verb@                          i++;@\\
+\mbox{}\verb@                  }@\\
+\mbox{}\verb@                  for (r=n+1; r<=size; r++){@\\
+\mbox{}\verb@                          REAL(margSXP)[i] = NA_REAL;@\\
+\mbox{}\verb@                          i++;@\\
+\mbox{}\verb@                  }@\\
+\mbox{}\verb@          }@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@ dimgets(margSXP, dims);@\\
+\mbox{}\verb@ UNPROTECT(1);    //dims@\\
+\mbox{}\verb@ for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@          for (n=1; n<=size; n++) free(marg[j][n]);@\\
+\mbox{}\verb@          free(marg[j]);@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@ free(marg);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(res = allocVector(VECSXP,5));@\\
+\mbox{}\verb@  if (asInteger(verbose)==1) @\\
+\mbox{}\verb@   Rprintf("Limit=%d; %d Iterations; Limit enforced %d times (%4.2f percent)\n", @\\
+\mbox{}\verb@           limit, niter, nenforced, nenforced*100.0/niter);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@  SET_VECTOR_ELT(res, 0, margSXP);@\\
+\mbox{}\verb@  SET_VECTOR_ELT(res, 1, Q);@\\
+\mbox{}\verb@  SET_VECTOR_ELT(res, 2, D);@\\
+\mbox{}\verb@  SET_VECTOR_ELT(res, 3, ScalarReal(-NLLmin));@\\
+\mbox{}\verb@  PROTECT(tmp = allocVector(REALSXP,2));@\\
+\mbox{}\verb@   REAL(tmp)[0] = rel_error;@\\
+\mbox{}\verb@   REAL(tmp)[1] = niter;@\\
+\mbox{}\verb@  SET_VECTOR_ELT(res, 4, tmp);@\\
+\mbox{}\verb@ UNPROTECT(4);   //tmp, res, margSXP, D@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ return res;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@} @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@ReprodISDM@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@CalcMarginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@CalcTopD@\nobreak\ \NWlink{nuweb?}{?}, \verb@HyperTable@\nobreak\ \NWlink{nuweb?}{?}, \verb@IndexVectorC@\nobreak\ \NWlink{nuweb?}{?}, \verb@NegLogLik@\nobreak\ \NWlink{nuweb?}{?}, \verb@UpdateMarginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@UpdateQ@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{EM estimation}
+The \texttt{MixReprodQ} function implements the EM-based fitting:
+\begin{equation}\label{E:Qupdate}
+Q^{(t+1)}(\bv)=\frac{1}{N}\sum_{g,i}\frac{h(r_{g,i},v_g,n_{g,i}) Q^{(t)}(\bv)}{\sum_\bq
+h(r_{g,i},q_g,n_{g,i}) Q^{(t)}(\bq)}.
+\end{equation}
+Note that from \eqref{E:D}
+\begin{equation}
+ Q^{(t+1)}(\bv) = Q^{(t)}(\bv) + \frac{1}{N}D_Q(\bv)Q^{(t)}(\bv),
+\end{equation}
+so we will be able to use the \texttt{CalcMarginals} and \texttt{CalcD} functions
+defined earlier.
+
+\texttt{UpdateReprodQ} performs the updating step defined in \eqref{E:Qupdate}.
+
+\begin{flushleft} \small\label{scrap34}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SEXP UpdateReprodQ(SEXP Q, SEXP S, SEXP tab, int size, int ntrt, int nS, @\\
+\mbox{}\verb@                   double*** ht, int* idx){@\\
+\mbox{}\verb@ int ntot, i, j, n;@\\
+\mbox{}\verb@ double ***marg;@\\
+\mbox{}\verb@ SEXP resobj, D;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(resobj = duplicate(Q));@\\
+\mbox{}\verb@ for (i=0; i<length(Q); i++) REAL(resobj)[i] = 0;@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ ntot=0;@\\
+\mbox{}\verb@ for (i=0; i<length(tab); i++) ntot += REAL(tab)[i];@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ marg = CalcMarginals(S, Q, ht, idx, ntrt, size, nS);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(D = duplicate(Q));@\\
+\mbox{}\verb@ for (i=0; i<length(Q); i++) REAL(D)[i] = 0;@\\
+\mbox{}\verb@ CalcD(D, S, tab, idx, ht, marg, ntrt, nS, size, ntot);@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@// update Q values  @\\
+\mbox{}\verb@ for (i=0; i<length(Q); i++){@\\
+\mbox{}\verb@   REAL(resobj)[i] = REAL(Q)[i] * (1+REAL(D)[i]/ntot);@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ //cleanup@\\
+\mbox{}\verb@ for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@          for (n=1; n<=size; n++) free(marg[j][n]);@\\
+\mbox{}\verb@          free(marg[j]);@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@ free(marg);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ UNPROTECT(2);@\\
+\mbox{}\verb@ return resobj;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@UpdateReprodQ@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@CalcMarginals@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+And, finally, \texttt{MixReprodQ} performs the actual EM iterations. \texttt{eps}
+controls the precision of the estimate of the log-likelihood. Since
+\begin{equation}\label{E:relerror_EM}
+  l(\hat{Q}|\mathbf{X}) - l(Q^{(t)}|\mathbf{X}) \leq N 
+	     \frac{Q^{(t+1)}(\bv )-Q^{(t)}(\bv )}{Q^{(t)}(\bv )},
+\end{equation}
+we control the largest relative change in $Q$ during updating. If the \texttt{verbose}
+option is selected, the current value of the relative change is displayed at
+every 10th iteration.
+
+\begin{flushleft} \small\label{scrap35}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\src\ReprodCalcs.c"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SEXP MixReprodQ(SEXP Q, SEXP S, SEXP tab, SEXP MaxIter, SEXP eps, SEXP verbose){@\\
+\mbox{}\verb@ double rel_error, ***ht, ntot, re, ***marg, loglik;@\\
+\mbox{}\verb@ int niter, size, ntrt, nS, i, j, n, r, *idx, Qlength;@\\
+\mbox{}\verb@ SEXP D, Qnew, resQ, dims, resobj, tmp, margSXP, Qdims;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(Qdims = GET_DIM(Q));@\\
+\mbox{}\verb@ Qlength = 1;@\\
+\mbox{}\verb@ for (i=0; i<length(Qdims); i++) Qlength *= INTEGER(Qdims)[i];@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(resQ = duplicate(Q));@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(dims = GET_DIM(tab));@\\
+\mbox{}\verb@   size = INTEGER(dims)[0];@\\
+\mbox{}\verb@   ntrt = INTEGER(dims)[2];@\\
+\mbox{}\verb@ UNPROTECT(1);  //dims@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(dims = GET_DIM(S));@\\
+\mbox{}\verb@   nS = INTEGER(dims)[0];@\\
+\mbox{}\verb@ UNPROTECT(1); //dims@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ ntot=0;@\\
+\mbox{}\verb@ for (i=0; i<length(tab); i++) ntot += REAL(tab)[i];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ idx = IndexVector(S, size+1, ntrt, nS);@\\
+\mbox{}\verb@ ht = HyperTable(size);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(tmp = allocVector(REALSXP, 2));@\\
+\mbox{}\verb@ rel_error = 1;@\\
+\mbox{}\verb@ niter = 0;@\\
+\mbox{}\verb@ while ((niter<asInteger(MaxIter))&&(rel_error>asReal(eps))){@\\
+\mbox{}\verb@          R_CheckUserInterrupt();@\\
+\mbox{}\verb@                niter++;@\\
+\mbox{}\verb@    PROTECT(Qnew = UpdateReprodQ(resQ, S, tab, size, ntrt, nS, ht, idx));@\\
+\mbox{}\verb@    rel_error = 0;@\\
+\mbox{}\verb@    for (i=0; i<length(Qnew); i++){@\\
+\mbox{}\verb@            if (REAL(resQ)[i]>0){@\\
+\mbox{}\verb@                    re = ntot*(REAL(Qnew)[i]-REAL(resQ)[i])/REAL(resQ)[i];@\\
+\mbox{}\verb@                    if (rel_error < re) rel_error = re;@\\
+\mbox{}\verb@            }@\\
+\mbox{}\verb@            REAL(resQ)[i] = REAL(Qnew)[i];@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    UNPROTECT(1); //Qnew@\\
+\mbox{}\verb@    if ((asInteger(verbose) == 1)&&(niter%10 == 1)){@\\
+\mbox{}\verb@            REAL(tmp)[1] = rel_error;@\\
+\mbox{}\verb@            REAL(tmp)[0] = niter;@\\
+\mbox{}\verb@        PrintValue(tmp);@\\
+\mbox{}\verb@     } @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@  }     @\\
+\mbox{}\verb@ UNPROTECT(1);  //tmp   @\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ //calculate ML estimates for the output@\\
+\mbox{}\verb@ marg = CalcMarginals(S, resQ, ht, idx, ntrt, size, nS);@\\
+\mbox{}\verb@ PROTECT(margSXP = allocVector(REALSXP, ntrt*size*(size+1)));@\\
+\mbox{}\verb@ PROTECT(dims = allocVector(INTSXP,3));@\\
+\mbox{}\verb@    INTEGER(dims)[0] = size+1;     INTEGER(dims)[1] = size;     INTEGER(dims)[2] = ntrt;   @\\
+\mbox{}\verb@    i = 0;@\\
+\mbox{}\verb@    for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@          for (n=1; n<=size; n++){ @\\
+\mbox{}\verb@                  for (r=0; r<=n; r++){@\\
+\mbox{}\verb@                          REAL(margSXP)[i] = marg[j][n][r];@\\
+\mbox{}\verb@                          i++;@\\
+\mbox{}\verb@                  }@\\
+\mbox{}\verb@                  for (r=n+1; r<=size; r++){@\\
+\mbox{}\verb@                          REAL(margSXP)[i] = NA_REAL;@\\
+\mbox{}\verb@                          i++;@\\
+\mbox{}\verb@                  }@\\
+\mbox{}\verb@          }@\\
+\mbox{}\verb@   }            @\\
+\mbox{}\verb@ dimgets(margSXP, dims);   @\\
+\mbox{}\verb@ UNPROTECT(1); //dims@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ PROTECT(D = allocVector(REALSXP, Qlength));@\\
+\mbox{}\verb@ dimgets(D, Qdims);@\\
+\mbox{}\verb@ for (i=0; i<Qlength; i++) REAL(D)[i] = 0;@\\
+\mbox{}\verb@ CalcD(D, S, tab, idx, ht, marg, ntrt, nS, size, ntot); @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ //calculate log-likelihood for the output@\\
+\mbox{}\verb@ loglik = 0;@\\
+\mbox{}\verb@ for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@  for (n=1; n<=size; n++){ @\\
+\mbox{}\verb@          for (r=0; r<=n; r++){@\\
+\mbox{}\verb@            loglik += GetTabElem(tab, size, n, r, j)*log(marg[j][n][r]);@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ for(j=0; j<ntrt; j++){@\\
+\mbox{}\verb@          for (n=1; n<=size; n++) free(marg[j][n]);@\\
+\mbox{}\verb@          free(marg[j]);@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@ free(marg);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@ for(j=0; j<=size; j++){@\\
+\mbox{}\verb@          for (n=0; n<=size; n++) free(ht[j][n]);@\\
+\mbox{}\verb@          free(ht[j]);@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@ free(ht);@\\
+\mbox{}\verb@ free(idx);@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ PROTECT(resobj = allocVector(VECSXP, 5));@\\
+\mbox{}\verb@   SET_VECTOR_ELT(resobj, 0, margSXP);@\\
+\mbox{}\verb@   SET_VECTOR_ELT(resobj, 1, resQ);@\\
+\mbox{}\verb@   SET_VECTOR_ELT(resobj, 2, D);@\\
+\mbox{}\verb@   SET_VECTOR_ELT(resobj, 3, ScalarReal(loglik));@\\
+\mbox{}\verb@         PROTECT(tmp = allocVector(REALSXP,2));@\\
+\mbox{}\verb@           REAL(tmp)[0] = rel_error;@\\
+\mbox{}\verb@           REAL(tmp)[1] = niter;@\\
+\mbox{}\verb@         SET_VECTOR_ELT(resobj, 4, tmp);@\\
+\mbox{}\verb@ UNPROTECT(6); //tmp, resobj,D, margSXP, resQ, Qdims@\\
+\mbox{}\verb@ @\\
+\mbox{}\verb@ return resobj;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@CalcMarginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@HyperTable@\nobreak\ \NWlink{nuweb?}{?}, \verb@UpdateReprodQ@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Testing for stochastic ordering}
+
+Now that we have the MLEs, we implement the likelihood-ratio test. 
+
+\subsection{Testing against a global null}
+First  we consider testing
+\begin{equation*}
+H_0: \bpi_1=\cdots =\bpi_G \quad\text{versus}\quad
+H_a:\bpi_1 \leqst \cdots \leqst \bpi_G
+\end{equation*}
+We incorporate the \texttt{turn} parameter to allow fitting and testing umbrella orderings.
+
+The \texttt{SO.LRT} computes the likelihood-ratio test statistic.
+\begin{flushleft} \small\label{scrap36}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Likelihood-ratio test statistic@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'\code{SO.LRT} computes the likelihood ratio test statistic for stochastic@\\
+\mbox{}\verb@#'ordering against equality assuming marginal compatibility for both@\\
+\mbox{}\verb@#'alternatives. Note that this statistic does not have a@\\
+\mbox{}\verb@#'\eqn{\chi^2}{chi-squared} distribution, so the p-value computation is not@\\
+\mbox{}\verb@#'straightforward. The \code{\link{SO.trend.test}} function implements a@\\
+\mbox{}\verb@#'permutation-based evaluation of the p-value for the likelihood-ratio test.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{CBData} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param control an optional list of control settings, usually a call to@\\
+\mbox{}\verb@#'\code{\link{soControl}}.  See there for the names of the settable control@\\
+\mbox{}\verb@#'values and their effect.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return The value of the likelihood ratio test statistic is returned with two@\\
+\mbox{}\verb@#'attributes:@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ll0}{the log-likelihood under \eqn{H_0}{H0} (equality)}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ll1}{the log-likelihood under \eqn{H_a}{Ha} (stochastic order)}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{SO.trend.test}}, \code{\link{soControl}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest nonparametric@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'LRT <- SO.LRT(shelltox, control=soControl(max.iter = 100, max.directions = 50))@\\
+\mbox{}\verb@#'LRT@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@SO.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap37}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SO.LRT <- function(cbdata, control=soControl()){@\\
+\mbox{}\verb@        # LL under null hypothesis of equality (+ reproducibility)@\\
+\mbox{}\verb@        a <- with(cbdata, aggregate(Freq, list(ClusterSize=ClusterSize,NResp=NResp), sum))@\\
+\mbox{}\verb@        names(a)[names(a)=="x"] <- "Freq"@\\
+\mbox{}\verb@        a$ClusterSize <- as.integer(as.character(a$ClusterSize))@\\
+\mbox{}\verb@        a$NResp <- as.integer(as.character(a$NResp))@\\
+\mbox{}\verb@        a$Trt <- 1@\\
+\mbox{}\verb@    class(a) <- c("CBData", "data.frame")@\\
+\mbox{}\verb@                       @\\
+\mbox{}\verb@        b <- mc.est(a)@\\
+\mbox{}\verb@  b <- merge(cbdata, b, all.x=TRUE, by=c("ClusterSize","NResp"))@\\
+\mbox{}\verb@  ll0 <- with(b, sum(Freq*log(Prob)))@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  # LL under alternative hypothesis of stoch ordering (+ reproducibility)@\\
+\mbox{}\verb@  res <- SO.mc.est(cbdata, control=control)@\\
+\mbox{}\verb@  ll1 <- attr(res, "loglik")@\\
+\mbox{}\verb@  lrt <- 2*(ll1 - ll0)@\\
+\mbox{}\verb@  attr(lrt, "ll0") <- ll0@\\
+\mbox{}\verb@  attr(lrt, "ll1") <- ll1@\\
+\mbox{}\verb@  lrt@\\
+\mbox{}\verb@ }@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@SO.mc.est@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+To get the p-value for the LRT, we use a permutation testing approach. The \texttt{SO.trend.test} function
+relies on the \texttt{boot} library for this, thus both the permutation test
+is straightforward to implement. \texttt{R}
+specifies the number of resamples, \texttt{method} could be either ``ISDM'' or 
+``EM'', and \texttt{eps} is the precision of the LRT estimate.
+
+\begin{flushleft} \small\label{scrap38}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Likelihood ratio test of stochastic ordering@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Performs a likelihood ratio test of stochastic ordering versus equality using@\\
+\mbox{}\verb@#'permutations to estimate the null-distribution and the p-value.  If only the@\\
+\mbox{}\verb@#'value of the test statistic is needed, use \code{\link{SO.LRT}} instead.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The test is valid only under the assumption that the cluster-size@\\
+\mbox{}\verb@#'distribution does not depend on group. During the estimation of the@\\
+\mbox{}\verb@#'null-distribution the group assignments of the clusters are permuted keeping@\\
+\mbox{}\verb@#'the group sizes constant; the within-group distribution of the cluster-sizes@\\
+\mbox{}\verb@#'will vary randomly during the permutation test.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The default value of \code{R} is probably too low for the final data@\\
+\mbox{}\verb@#'analysis, and should be increased.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@import boot@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{\link{CBData}} object.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param R an integer -- the number of random permutations for estimating the@\\
+\mbox{}\verb@#'null distribution.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param control an optional list of control settings, usually a call to@\\
+\mbox{}\verb@#'\code{\link{soControl}}.  See there for the names of the settable control@\\
+\mbox{}\verb@#'values and their effect.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with the following components@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{LRT}{the value of the likelihood ratio test statistic. It has two@\\
+\mbox{}\verb@#'attributes: \code{ll0} and \code{ll1} - the values of the log-likelihood@\\
+\mbox{}\verb@#'under \eqn{H_0}{H0} and \eqn{H_a}{Ha} respectively.}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{p.val}{the estimated one-sided p-value.}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{boot.res}{an object of class "boot" with the detailed results of@\\
+\mbox{}\verb@#'the permutations.  See \code{\link[boot]{boot}} for details.}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{SO.LRT}} for calculating only the test statistic,@\\
+\mbox{}\verb@#'\code{\link{soControl}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Szabo A, George EO. (2009) On the Use of Stochastic Ordering to@\\
+\mbox{}\verb@#'Test for Trend with Clustered Binary Data.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest nonparametric@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'set.seed(45742)@\\
+\mbox{}\verb@#'sh.test <- SO.trend.test(shelltox, R=5, control=soControl(eps=0.1, max.directions=25)) @\\
+\mbox{}\verb@#'sh.test@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'#a plot of the resampled LRT values@\\
+\mbox{}\verb@#'#would look better with a reasonable value of R@\\
+\mbox{}\verb@#' null.vals <- sh.test$boot.res$t[,1]@\\
+\mbox{}\verb@#' hist(null.vals, breaks=10,  freq=FALSE, xlab="Test statistic", ylab="Density", @\\
+\mbox{}\verb@#'      main="Simulated null-distribution", xlim=range(c(0,20,null.vals)))@\\
+\mbox{}\verb@#' points(sh.test$LRT, 0, pch="*",col="red", cex=3)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@SO.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap39}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@SO.trend.test <- function(cbdata, R=100, control=soControl()){@\\
+\mbox{}\verb@        dat2 <- cbdata[rep(1:nrow(cbdata), cbdata$Freq),]  #each row is one sample@\\
+\mbox{}\verb@        dat2$Freq <- NULL@\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@        boot.LRT.fun <- function(dat, idx){@\\
+\mbox{}\verb@          dat.new <- cbind(dat[idx, c("ClusterSize","NResp")], Trt=dat$Trt)   #rearrange clusters@\\
+\mbox{}\verb@                dat.f <- aggregate(dat.new$Trt, @\\
+\mbox{}\verb@                          list(Trt=dat.new$Trt, ClusterSize=dat.new$ClusterSize, NResp=dat.new$NResp), length)@\\
+\mbox{}\verb@          names(dat.f)[names(dat.f)=="x"] <- "Freq"@\\
+\mbox{}\verb@    dat.f$ClusterSize <- as.numeric(as.character(dat.f$ClusterSize))@\\
+\mbox{}\verb@          dat.f$NResp <- as.numeric(as.character(dat.f$NResp))@\\
+\mbox{}\verb@    class(dat.f) <- c("CBData", class(dat.f))@\\
+\mbox{}\verb@                    @\\
+\mbox{}\verb@    stat <- SO.LRT(dat.f, control=control)@\\
+\mbox{}\verb@    stat}        @\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@   res <- boot(dat2, boot.LRT.fun, R=R, sim="permutation")@\\
+\mbox{}\verb@     @\\
+\mbox{}\verb@   p <- mean(res$t[,1] >= res$t0)@\\
+\mbox{}\verb@   LRT <- res$t0@\\
+\mbox{}\verb@   list(LRT=LRT, p.val=p, boot.res=res)}           @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@SO.trend.test@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Universal trend test function}
+\texttt{trend.test} provides a common interface for the Rao-Scott, GEE, and stochastic
+order based trend tests.
+
+\begin{flushleft} \small\label{scrap40}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Test for increasing trend with correlated binary data@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The \code{trend.test} function provides a common interface to the trend tests@\\
+\mbox{}\verb@#'implemented in this package: \code{\link{SO.trend.test}},@\\
+\mbox{}\verb@#'\code{\link{RS.trend.test}}, and \code{\link{GEE.trend.test}}. The details of@\\
+\mbox{}\verb@#'each test can be found on their help page.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{\link{CBData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param test character string defining the desired test statistic. "RS"@\\
+\mbox{}\verb@#'performs the Rao-Scott test (\code{\link{RS.trend.test}}), "SO" performs the@\\
+\mbox{}\verb@#'stochastic ordering test (\code{\link{SO.trend.test}}), "GEE", "GEEtrend",@\\
+\mbox{}\verb@#'"GEEall" perform the GEE-based test (\code{\link{GEE.trend.test}}) with@\\
+\mbox{}\verb@#'constant, linearly modeled, and freely varying scale parameters,@\\
+\mbox{}\verb@#'respectively.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param exact logical, should an exact permutation test be performed. Only an@\\
+\mbox{}\verb@#'exact test can be performed for "SO". The default is to use the asymptotic@\\
+\mbox{}\verb@#'p-values except for "SO".@\\
+\mbox{}\verb@#'@{\tt @}\verb@param R integer, number of permutations for the exact test@\\
+\mbox{}\verb@#'@{\tt @}\verb@param control an optional list of control settings for the stochastic order@\\
+\mbox{}\verb@#'("SO") test, usually a call to \code{\link{soControl}}.  See there for the@\\
+\mbox{}\verb@#'names of the settable control values and their effect.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return A list with two components and an optional "boot" attribute that@\\
+\mbox{}\verb@#'contains the detailed results of the permutation test as an object of class@\\
+\mbox{}\verb@#'\code{\link[boot]{boot}} if an exact test was performed.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{statistic}{numeric, the value of the test statistic}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{p.val}{numeric, asymptotic one-sided p-value of the test}@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{SO.trend.test}}, \code{\link{RS.trend.test}}, and@\\
+\mbox{}\verb@#'\code{\link{GEE.trend.test}} for details about the available tests.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest nonparametric@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'trend.test(shelltox, test="RS")@\\
+\mbox{}\verb@#'set.seed(5724)@\\
+\mbox{}\verb@#'#R=50 is too low to get a good estimate of the p-value@\\
+\mbox{}\verb@#'trend.test(shelltox, test="RS", R=50, exact=TRUE)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@SO.trend.test@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap41}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@trend.test <- function(cbdata, test=c("RS","GEE","GEEtrend","GEEall","SO"), exact=test=="SO", @\\
+\mbox{}\verb@                       R=100, control=soControl()){ @\\
+\mbox{}\verb@   test <- match.arg(test)@\\
+\mbox{}\verb@   if (!exact && !(test=="SO")){@\\
+\mbox{}\verb@     res <- switch(test, RS=RS.trend.test(cbdata), @\\
+\mbox{}\verb@                         GEE=GEE.trend.test(cbdata,scale.method="fixed"),@\\
+\mbox{}\verb@                         GEEtrend=GEE.trend.test(cbdata,scale.method="trend"),@\\
+\mbox{}\verb@                         GEEall=GEE.trend.test(cbdata,scale.method="all"))@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@   else {@\\
+\mbox{}\verb@     dat2 <- cbdata[rep(1:nrow(cbdata), cbdata$Freq),]  #each row is one sample@\\
+\mbox{}\verb@     dat2$Freq <- NULL@\\
+\mbox{}\verb@     @\\
+\mbox{}\verb@     boot.LRT.fun <- function(dat, idx){@\\
+\mbox{}\verb@       dat.new <- cbind(dat[idx, c("ClusterSize","NResp")], Trt=dat$Trt)   #rearrange clusters@\\
+\mbox{}\verb@       dat.f <- aggregate(dat.new$Trt, @\\
+\mbox{}\verb@                  list(Trt=dat.new$Trt, ClusterSize=dat.new$ClusterSize, NResp=dat.new$NResp), length)@\\
+\mbox{}\verb@       names(dat.f)[names(dat.f)=="x"] <- "Freq"@\\
+\mbox{}\verb@       dat.f$ClusterSize <- as.numeric(as.character(dat.f$ClusterSize))@\\
+\mbox{}\verb@       dat.f$NResp <- as.numeric(as.character(dat.f$NResp))@\\
+\mbox{}\verb@       class(dat.f) <- c("CBData", class(dat.f))@\\
+\mbox{}\verb@                     @\\
+\mbox{}\verb@       stat <- switch(test, SO=SO.LRT(dat.f, control=control),@\\
+\mbox{}\verb@                            RS=RS.trend.test(dat.f)$statistic,@\\
+\mbox{}\verb@                            GEE=GEE.trend.test(dat.f, scale.method="fixed")$statistic,@\\
+\mbox{}\verb@                            GEEtrend=GEE.trend.test(cbdata,scale.method="trend")$statistic,@\\
+\mbox{}\verb@                            GEEall=GEE.trend.test(cbdata,scale.method="all")$statistic)@\\
+\mbox{}\verb@       stat}        @\\
+\mbox{}\verb@          @\\
+\mbox{}\verb@     bootres <- boot(dat2, boot.LRT.fun, R=R, sim="permutation")@\\
+\mbox{}\verb@     res <- list(statistic=bootres$t0, p.val= mean(bootres$t[,1] >= bootres$t0))@\\
+\mbox{}\verb@     attr(res, "boot") <- bootres@\\
+\mbox{}\verb@   }   @\\
+\mbox{}\verb@   res}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Finding the NOAEL}
+
+The NOSTASOT dose is the No-Statistical-Significance-Of-Trend dose -- the largest dose 
+at which no trend in the rate of adverse events has been observed. 
+
+\begin{flushleft} \small\label{scrap42}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Finding the NOSTASOT dose@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The NOSTASOT dose is the No-Statistical-Significance-Of-Trend dose -- the@\\
+\mbox{}\verb@#'largest dose at which no trend in the rate of response has been observed. It@\\
+\mbox{}\verb@#'is often used to determine a safe dosage level for a potentially toxic@\\
+\mbox{}\verb@#'compound.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'A series of hypotheses about the presence of an increasing trend overall,@\\
+\mbox{}\verb@#'with all but the last group, all but the last two groups, etc.  are tested.@\\
+\mbox{}\verb@#'Since this set of hypotheses forms a closed family, one can test these@\\
+\mbox{}\verb@#'hypotheses in a step-down manner with the same \code{sig.level} type I error@\\
+\mbox{}\verb@#'rate at each step and still control the family-wise error rate.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'The NOSTASOT dose is the largest dose at which the trend is not statistically@\\
+\mbox{}\verb@#'significant. If the trend test is not significant with all the groups@\\
+\mbox{}\verb@#'included, the largest dose is the NOSTASOT dose. If the testing sequence goes@\\
+\mbox{}\verb@#'down all the way to two groups, and a significant trend is still detected,@\\
+\mbox{}\verb@#'the lowest dose is the NOSTASOT dose. This assumes that the lowest dose is a@\\
+\mbox{}\verb@#'control group, and this convention might not be meaningful otherwise.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cbdata a \code{\link{CBData}} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param test character string defining the desired test statistic. See@\\
+\mbox{}\verb@#'\code{\link{trend.test}} for details.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param exact logical, should an exact permutation test be performed. See@\\
+\mbox{}\verb@#'\code{\link{trend.test}} for details.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param R integer, number of permutations for the exact test@\\
+\mbox{}\verb@#'@{\tt @}\verb@param sig.level numeric between 0 and 1, significance level of the test@\\
+\mbox{}\verb@#'@{\tt @}\verb@param control an optional list of control settings for the stochastic order@\\
+\mbox{}\verb@#'("SO") test, usually a call to \code{\link{soControl}}.  See there for the@\\
+\mbox{}\verb@#'names of the settable control values and their effect.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a list with two components@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{NOSTASOT}{character string identifying the NOSTASOT dose.}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{p}{numeric vector of the p-values of the tests actually performed.}@\\
+\mbox{}\verb@#'The last element corresponds to all doses included, and will not be missing.@\\
+\mbox{}\verb@#'p-values for tests that were not actually performed due to the procedure@\\
+\mbox{}\verb@#'stopping are set to NA.@\\
+\mbox{}\verb@#'@{\tt @}\verb@author Aniko Szabo, aszabo@{\tt @}\verb@@{\tt @}\verb@mcw.edu@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{trend.test}} for details about the available trend@\\
+\mbox{}\verb@#'tests.@\\
+\mbox{}\verb@#'@{\tt @}\verb@references Tukey, J. W.; Ciminera, J. L. & Heyse, J. F. (1985) Testing the@\\
+\mbox{}\verb@#'statistical certainty of a response to increasing doses of a drug.@\\
+\mbox{}\verb@#'\emph{Biometrics} 41, 295-301.@\\
+\mbox{}\verb@#'@{\tt @}\verb@keywords htest nonparametric@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(shelltox)@\\
+\mbox{}\verb@#'NOSTASOT(shelltox, test="RS")@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@NOSTASOT@\nobreak\ \NWlink{nuweb?}{?}, \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap43}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"../R/Reprod.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@NOSTASOT <- function(cbdata, test=c("RS","GEE","GEEtrend","GEEall","SO"), exact=test=="SO",@\\
+\mbox{}\verb@                     R=100, sig.level=0.05, control=soControl()){@\\
+\mbox{}\verb@   ntrt <- nlevels(cbdata$Trt)@\\
+\mbox{}\verb@   control.gr <- levels(cbdata$Trt)[1]@\\
+\mbox{}\verb@   p.vec <- array(NA, ntrt-1)@\\
+\mbox{}\verb@   names(p.vec) <- levels(cbdata$Trt)[-1]@\\
+\mbox{}\verb@   NOSTASOT.found <- FALSE@\\
+\mbox{}\verb@   curr.gr.idx <- ntrt@\\
+\mbox{}\verb@   curr.gr <- levels(cbdata$Trt)[ntrt]@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   while (!NOSTASOT.found & (curr.gr.idx>1)){@\\
+\mbox{}\verb@     d1 <- cbdata[unclass(cbdata$Trt)<=curr.gr.idx, ]@\\
+\mbox{}\verb@     d1$Trt <- factor(d1$Trt) #eliminate unused levels@\\
+\mbox{}\verb@     tr.test <- trend.test(d1, test=test, exact=exact, R=R, control=control)@\\
+\mbox{}\verb@     p.vec[curr.gr] <- tr.test$p.val@\\
+\mbox{}\verb@     if (tr.test$p.val < sig.level){ #NOSTASOT not found yet@\\
+\mbox{}\verb@       curr.gr.idx <- curr.gr.idx - 1@\\
+\mbox{}\verb@       curr.gr <- levels(cbdata$Trt)[curr.gr.idx]@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@     else { #NOSTASOT@\\
+\mbox{}\verb@       NOSTASOT.found <- TRUE@\\
+\mbox{}\verb@     }@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@       @\\
+\mbox{}\verb@   list(NOSTASOT = curr.gr, p=p.vec)    @\\
+\mbox{}\verb@}       @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@NOSTASOT@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@soControl@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Files}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \verb@"../R/aaa-generics1.R"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+}
+\item \verb@"../R/Reprod.R"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+}
+\item \verb@"..\src\ReprodCalcs.c"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+}
+\end{list}}
+
+\section{Macros}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item $\langle\,$Combine the two parts of the sequences\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Convert 'a' to non-decreasing sequence and insert into 'res'\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Declare global variables\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Generate non-decreasing sequences of length ntrt-turn with values between sq and size\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Generate non-increasing sequences of length turn with values $\leq$ size\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Take care of turn=1 and turn=ntrt\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\end{list}}
+
+\section{Identifiers}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \verb@CalcMarginals@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@CalcTopD@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@Comb@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@DownUpMatrix@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@HyperTable@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@IndexVectorC@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@makeSmatrix@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@mc.est@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@mc.test.chisq@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@NegLogLik@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@NOSTASOT@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@ReprodEstimates@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@ReprodISDM@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@SO.mc.est@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@SO.trend.test@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@soControl@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@UpdateMarginals@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@UpdateQ@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@UpdateReprodQ@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\end{list}}
+
+\end{document}

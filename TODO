@@ -1,0 +1,3 @@
+﻿- change CBData and CMData to as.CBData and as.CMData S3 methods for data.frame objects
+- create as.CMData for CBData objects
+- rewrite CMData calculations in C (or C++?)

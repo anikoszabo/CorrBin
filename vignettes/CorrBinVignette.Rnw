@@ -1,0 +1,198 @@
+%\VignetteIndexEntry{Using CorrBin for the Shell Toxicology data}
+%\VignetteDepends{lattice}
+\documentclass[reqno]{amsart}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{graphicx}
+
+\title{Using the CorrBin package for nonparametric analysis of correlated binary
+data}
+\author[A. Szabo]{Aniko Szabo}
+\SweaveOpts{echo=TRUE}
+
+\begin{document}
+\setkeys{Gin}{width=0.5\textwidth}
+
+\maketitle
+<<Misc, echo=false, results=hide>>=
+options(useFancyQuotes=FALSE) 
+@
+
+
+The \texttt{CorrBin} package focuses on non-parametric methods for exchangeable correlated binary
+data with varying cluster sizes. Exchangeability implies that the order of responses within a
+cluster does not matter, only the total number of responses; the package uses the clustersize/
+number of responses combination as input. Currently only one categorical cluster-level predictor,
+treatment group, is allowed. Many of the functions are geared toward testing trend, so treatment
+groups are usually treated as ordered categories.
+
+
+<<LibLoad, results=hide>>=
+  library(CorrBin)
+  library(lattice)
+@
+
+\section{Data input}
+All the analysis functions in the package work on \texttt{CBData} objects, so 
+we start by setting up the data in the format needed for analysis. The Shell toxicology 
+data set is available in the CBData format in the package, however we will load
+it from a text file using the \texttt{read.CBData} function to show more typical usage. The
+``ShellTox.txt'' file contains four space-delimited columns. The first column contains an integer 1 -- 4 giving the treatment group, the second 
+column gives the size of the cluster, the third the number of responses in the cluster, and the
+last gives the number of times the given combination occured in the data. 
+
+<<Intro, echo=false>>=
+ options(width=100)
+ ps.options(colormodel="rgb")
+<<DataLoad>>=
+ sh <- read.CBData("ShellTox.txt", with.freq=TRUE)
+ levels(sh$Trt) <- c("Control","Low","Medium", "High")
+ str(sh)
+@
+
+Alternatively, if the data is already in a data frame, the \texttt{CBData} function
+can be used to define the roles of the variables. Both \texttt{read.CBData} and \texttt{CBData}
+can accomodate cluster-level data that has not been summarized to have frequencies of each 
+clustersize/number of responses combination.
+
+\section{Marginal compatibility}
+A basic assumption of all of the following analyses is that of \emph{marginal compatibility} (MC),
+which states that the size of the cluster has no effect on either the marginal probability of 
+response, or the correlation (any order) within the cluster. Of course, this is only relevant if 
+the clusters of different sizes are present in the data. We
+can test for marginal compatibility:
+<<MCtest>>=
+  mc.test.chisq(sh)
+@
+Neither the overall p-value of 0.4, or the individual treatment group p-values show evidence
+of deviation from marginal compatibility.
+
+Now we can obtain non-parametric estimates of the distribution of the number of 
+responses in the cluster under MC:
+<<MCest>>=
+  sh.mc <- mc.est(sh)
+@ 
+Even though the \texttt{mc.est} functions gives estimates for all cluster-sizes, due to the 
+marginal compatibility assumption the estimates $\pi_{r,M}$ for the largest cluster-size $M$
+determine all the other estimates:
+\begin{equation}
+P(\text{$r$ responses}\mid\text{cluster size $n$})=\pi_{r,n}  = \sum_{t=0}^{M}h(r,t,n)\pi_{t,M},
+\end{equation}
+where $h(r, t, n) = \binom{t}{r}\binom{M-t}{n-r}/\binom{M}{n}$ is the hypergeometric density function.
+Figure~\ref{F:MCest} shows the estimates. 
+\begin{figure}
+<<MCestfig, fig=true, width=8, height=6, echo=false>>=
+  print(xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSize>0 & ClusterSize<13, 
+    type="l", as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),
+    xlab="Number of responses", ylab="P(R=r|N=n)"))
+@
+\caption{Density function of number of responses under MC by cluster-size estimated separately
+for each treatment group}\label{F:MCest}
+\end{figure}
+<<MCestfig2, results=hide, eval=false>>=
+<<MCestfig>>
+@
+
+The density functions in Figure~\ref{F:MCest} are difficult to compare (there is no
+obvious shift); distribution functions often provide a cleaner comparison, so
+they are plotted in Figure~\ref{F:MCsurvest}. These plots show that curves for the ``Control'' and
+``Low'' groups tend to be above the ``Medium'' and ``High'' group, suggesting the 
+presence of a dose related trend.
+\begin{figure}
+<<MCsurvfig, fig=true, width=8, height=6, echo=false>>=
+  panel.cumsum <- function(x,y,...){
+    x.ord <- order(x)
+    panel.xyplot(x[x.ord], cumsum(y[x.ord]), ...)}
+
+   print(xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, 
+       subset=ClusterSize>0&ClusterSize<13, type="s",
+       panel=panel.superpose, panel.groups=panel.cumsum,
+       as.table=T, auto.key=list(columns=4, lines=T, points=F),
+			 xlab="Number of responses", ylab="Cumulative Probability R(R>=r|N=n)",
+			 ylim=c(0,1.1)))
+@
+\caption{Distribution functions of number of responses under MC by cluster-size estimated separately
+for each treatment group}\label{F:MCsurvest}
+\end{figure}
+<<MCsurvfig2, results=hide, eval=false>>=
+<<MCsurvfig>>
+@
+
+\section{Testing for trend}
+
+Several methods have been proposed for testing for trend with correlated binary data; this
+package implements 3 types of tests: the Rao-Scott (RS) test, 3 versions of a GEE-based test\footnote{The GEE approach is implemented,
+even though it is not quite a non-parametric test}, and a stochastic
+ordering (SO) based test. RS and GEE test for linear trend in the marginal probability of response, while SO tests for ordering of the distribution functions (as in Figure~\ref{F:MCsurvest}) of the number of responses..
+
+The common interface for accessing the trend tests is the \texttt{trend.test} function. 
+It allows to pick the test, whether a permutation-test based exact or an asymptotic (only for RS and GEE)
+p-value should be used, and set algorithm options for the SO test. In this vignette we use $R=50$ permutations
+to limit running time, but in actual work larger values should be used.
+
+<<SOtest>>=
+  set.seed(4461)
+ (so.res <- trend.test(sh, test="SO", R=50, control=soControl(eps=0.1, max.directions=40)))
+@
+The \texttt{eps} parameter sets the limit on the absolute error of the log-likelihood (and thus, the
+test statistic), while \texttt{max.directions} is a tuning parameter for the default ISDM algorithm: it
+affects only the running time, and, in general, larger values lead to fewer iterations that however take
+longer. The details of the permutation test are saved in the output object, so the null distribution of
+the test statistic can be extracted for, say, a plot as in Figure~\ref{F:SOboot}.
+\begin{figure}
+<<SOboot,fig=true,width=5,height=5,echo=false>>=
+ hist(attr(so.res, "boot")$t[,1], freq=FALSE, xlab="Statistic", ylab="Density", main="")
+ points(so.res$statistic, 0, pch="*",col="red", cex=3)
+@
+\caption{Null distribution of the SO test statistic with the observed value marked with a red star.}\label{F:SOboot}
+\end{figure}
+<<SOboot2, results=hide, eval=false>>=
+<<SOboot>>
+@
+
+The other tests also show the presence of a statistically significant trend:
+<<RSGEEtest>>=
+  trend.test(sh, test="RS")
+  trend.test(sh, test="GEE")
+@
+
+The stochastic ordering approach provides not only a test for trend, but also the estimated distribution
+of the number of responses under the alternative hypothesis of stochastic order. These can be obtained by the
+\texttt{SO.mc.est} function, with the value of the log-likelihood, and convergence information. The estimates are 
+then plotted (see Figure~\ref{F:MCsoest}).
+<<SOmle>>=
+   sh.SO.est <- SO.mc.est(sh, control=soControl(eps=0.1, max.directions=40))
+   str(sh.SO.est)
+@
+\begin{figure}
+<<SOmleplot, fig=true, width=8, height=6, echo=false>>=
+   print(xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.SO.est, 
+       subset=ClusterSize<13, type="s",
+       panel=panel.superpose, panel.groups=panel.cumsum,
+       as.table=T, auto.key=list(columns=4, lines=T, points=F),
+			 xlab="Number of responses", ylab="Cumulative Probability R(R>=r|N=n)",
+			 ylim=c(0,1.1), main=""))
+@
+\caption{Stochastically ordered distribution functions of the number of responses under MC by cluster-size.}\label{F:MCsoest}
+\end{figure}
+<<SOmleplot2, results=hide, eval=false>>=
+<<SOmleplot>>
+@
+
+\section{Risk assessment}
+
+The No-Statistical-Significance-Of-Trend dose -- the largest dose  at which no trend in the rate of response has
+been observed -- is often used to determine a safe dosage level  for a potentially toxic compound.
+The \texttt{NOSTASOT} function computes this dose by a step-down approach of testing all doses, all but the last, etc.
+All three tests (stochastic order, Rao-Scott, and GEE) are available.
+
+<<nostasot>>=
+  NOSTASOT(sh, test="RS")
+@
+
+For the Shell toxicology data, the ``Low'' dose of the drug shows no trend, but all higher doses do, so that's the NOSTASOT
+dose.
+\end{document}
+
+setwd("c:/RForge/CorrBin/inst/doc")
+Sweave("CorrBinVignette.Rnw", stylepath=FALSE)
+

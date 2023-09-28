@@ -1,0 +1,1173 @@
+\newcommand{\NWtarget}[2]{#2}
+\newcommand{\NWlink}[2]{#2}
+\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+\newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
+\newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
+\newcommand{\NWtxtDefBy}{Defined by}
+\newcommand{\NWtxtRefIn}{Referenced in}
+\newcommand{\NWtxtNoRef}{Not referenced}
+\newcommand{\NWtxtFileDefBy}{File defined by}
+\newcommand{\NWtxtIdentsUsed}{Uses:}
+\newcommand{\NWtxtIdentsNotUsed}{Never used}
+\newcommand{\NWtxtIdentsDefed}{Defines:}
+\newcommand{\NWsep}{${\diamond}$}
+\newcommand{\NWnotglobal}{(not defined globally)}
+\newcommand{\NWuseHyperlinks}{}
+\documentclass[reqno]{amsart}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\renewcommand{\NWtarget}[2]{\hypertarget{#1}{#2}}
+\renewcommand{\NWlink}[2]{\hyperlink{#1}{#2}}
+
+\providecommand{\tsum}{\textstyle\sum}
+\providecommand{\dsum}{\displaystyle\sum}
+\newcommand{\rvec}{\mathbf{r}}
+\newcommand{\svec}{\mathbf{s}}
+\newcommand{\tvec}{\mathbf{t}}
+\newcommand{\dvec}{\mathbf{d}}
+\newcommand{\taur}[1]{\tau_{r_1,\ldots,r_{#1}}}
+\newcommand{\taurn}[2]{\tau_{r_1,\ldots,r_{#1}|#2}}
+\newcommand{\htaurn}[2]{\hat{\tau}_{r_1,\ldots,r_{#1}|#2}}
+\newcommand{\thetar}[1]{\theta_{r_1,\ldots,r_{#1}}}
+\newcommand{\hthetar}[1]{\hat{\theta}_{r_1,\ldots,r_{#1}}}
+\newcommand{\Arn}[2]{A_{r_1,\ldots,r_{#1}|#2}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\V}{\mathcal{V}}
+
+\DeclareMathOperator{\Prob}{P}
+
+\title{Exchangeable model for multinomial data}
+\author{Aniko Szabo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+We implement parameter estimation for exchangeable multinomial data, including estimation under marginal compatibility. 
+\end{abstract}
+
+\section{Preliminaries}
+
+We will be using object of \texttt{CMData} class, which is defined in \texttt{CMData.w}.
+
+We will also need to load support libraries.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@import combinat@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\section{Exchangeable multinomial model}\label{S:MLE} 
+
+\subsection{Definitions} Let  $\mathbf{R}=(R_{1},\ldots, R_{K})^{T}$ follow an exchangeable multinomial distribution with $K+1$ categories.
+We parameterize it by
+
+\begin{equation} 
+ \taurn{k}{n} = \Prob\big[\X_{\{1,\ldots,r_1\}}(O_1),  \ldots,
+\X_{\{\sum_{i=1}^{k-1}r_i+1,\ldots,\sum_{i=1}^{k}r_i\}}(O_k)\big] \quad (k=1,\ldots,K),
+\end{equation}
+where $r_{i}\geq 0$ and $r_{1}+\cdots +r_k\leq n$. For notational convenience,
+also let $\tau_{0,\ldots,0}=1$.
+
+\subsection{Estimation} 
+Consider $\taurn{K}{n}$ and its unconditional counterpart 
+\begin{equation*} 
+ \thetar{K}=\Prob\big[\X_{\{1,\ldots,r_1\}}(O_1), \ldots,
+\X_{\{\sum_{i=1}^{K-1}r_i+1,\ldots,\sum_{i=1}^{K}r_i\}}(O_K)\big] = \sum_{n=\sum r_i}^{C}\taurn{K}{n} \Prob(N=n). 
+\end{equation*}
+
+If $\Arn{K}{n}$ denotes the number of clusters of size $n$ with response vector $(r_1,\ldots, r_K)$, then their non-parametric estimates are 
+\begin{equation}  \label{E:mle} 
+ \htaurn{K}{n}=\sum_{s_1,\ldots,s_{K}}\frac{\dbinom{n-\tsum{r_i}}{s_1,\ldots,s_{K}}}%
+  {\dbinom{n}{r_1+s_1,\ldots,r_K+s_{K}}}\frac{\Arn{K}{n}}{M_{n}},% 
+\end{equation}% 
+and 
+\begin{equation}  \label{E:thetahat} 
+\hthetar{K}=\sum_{n=1}^M\sum_{s_1,\ldots,s_{K}}\frac{\dbinom{n-\tsum{r_i}}{s_1,\ldots,s_{K}}}%
+  {\dbinom{n}{r_1+s_1,\ldots,r_K+s_{K}}}\frac{A_{r_1+s_1,\ldots,r_K+s_K|n}}{M}.
+\end{equation}%
+
+
+The function \texttt{tau} creates a ``look-up table'' for the MLEs. It returns either a list by treatment group
+of either $K+1$ or $K$ dimensional arrays, depending on whether cluster-size specific estimates ($\tau$'s) or 
+averaged estimates ($\theta$'s) are requested. For the cluster-size specific estimates the first dimension is
+the cluster size. The calculation of $\theta$'s is done separately for each dose level, and thus each dose 
+level uses a different sample-size distribution for averaging.
+
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap2}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@#' Estimate joint event probabilities for multinomial data@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#' An exchangeable multinomial distribution with \eqn{K+1} categories \eqn{O_1,\ldots,O_{K+1}}, can be@\\
+\mbox{}\verb@#' parameterized by the joint probabilities of events@\\
+\mbox{}\verb@#'\deqn{\tau_{r_1,\ldots,r_{K}|n} = P\big[X_1=\cdots=X_{r_1}=O_1,\ldots, X_{\sum_{i=1}^{K-1}r_i+1} =\cdots=X_{\sum_{i=1}^{K}r_i}=O_K\big] }{tau_{r_1,..,r_K|n} = P[X_1=...=X_{r_1}=O_1,..., X_{sum_{i=1}^{K-1}r_i+1} =...=X_{sum_{i=1}^{K}r_i}=O_K]}@\\
+\mbox{}\verb@#'where \eqn{r_i \geq 0} and \eqn{r_1+\cdots +r_K\leq n}.@\\
+\mbox{}\verb@#'The \code{jointprobs} function estimates these probabilities under various settings. @\\
+\mbox{}\verb@#'Note that when some of the \eqn{r_i}'s equal zero, then no restriction on the number of outcomes of the @\\
+\mbox{}\verb@#' corresponding type are imposed, so the resulting probabilities are marginal.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@param cmdata a \code{CMData} object@\\
+\mbox{}\verb@#'@{\tt @}\verb@param type character string describing the desired type of estimate:@\\
+\mbox{}\verb@#' \itemize{@\\
+\mbox{}\verb@#'  \item{"averaged"}{ - averaged over the observed cluster-size distribution within each treatment}@\\
+\mbox{}\verb@#'  \item{"cluster"}{ - separately for each cluster size within each treatment}@\\
+\mbox{}\verb@#'  \item{"mc"}{ - assuming marginal compatibility, ie that \eqn{\tau} does not depend on the cluster-size}@\\
+\mbox{}\verb@#' }@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a list with an array of estimates for each treatment. For a multinomial distribution with@\\
+\mbox{}\verb@#' \eqn{K+1} categories the arrays will have either \eqn{K+1} or {K} dimensions, depending on whether @\\
+\mbox{}\verb@#' cluster-size specific estimates (\code{type="cluster"}) or pooled estimates @\\
+\mbox{}\verb@#' (\code{type="averaged"} or \code{type="mc"}) are requested. For the cluster-size specific estimates @\\
+\mbox{}\verb@#' the first dimension is the cluster-size. Each additional dimension is a possible outcome. @\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{mc.est}} for estimating the distribution under marginal compatibility,@\\
+\mbox{}\verb@#'\code{\link{uniprobs}} and \code{\link{multi.corr}} for extracting the univariate marginal event@\\
+\mbox{}\verb@#'probabilities, and the within-multinomial correlations from the joint probabilities.@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'data(dehp)@\\
+\mbox{}\verb@#'# averaged over cluster-sizes@\\
+\mbox{}\verb@#'tau.ave <- jointprobs(dehp, type="ave")@\\
+\mbox{}\verb@#'# averaged P(X1=X2=O1, X3=O2) in the 1500 dose group@\\
+\mbox{}\verb@#'tau.ave[["1500"]]["2","1"]  # there are two type-1, and one type-2 outcome@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'#plot P(X1=O1) - the marginal probability of a type-1 event over cluster-sizes@\\
+\mbox{}\verb@#'tau <- jointprobs(dehp, type="cluster")@\\
+\mbox{}\verb@#'ests <- as.data.frame(lapply(tau, function(x)x[,"1","0"]))@\\
+\mbox{}\verb@#'matplot(ests, type="b")@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats xtabs@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@jointprobs <- function(cmdata, type=c("averaged","cluster","mc")){@\\
+\mbox{}\verb@  type <- match.arg(type)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  # multinomial lookup table@\\
+\mbox{}\verb@  mctab <- mChooseTable(M, nc, log=FALSE)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  res <- list()@\\
+\mbox{}\verb@  for (trt in levels(cmdata$Trt)){@\\
+\mbox{}\verb@    cm1 <- cmdata[cmdata$Trt==trt,]@\\
+\mbox{}\verb@    # observed freq lookup table@\\
+\mbox{}\verb@    atab <- array(0, dim=rep(M+1, nc))@\\
+\mbox{}\verb@    a.idx <- data.matrix(cm1[,nrespvars])@\\
+\mbox{}\verb@    atab[a.idx + 1] <- atab[a.idx + 1] + cm1$Freq@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    if (type=="averaged"){@\\
+\mbox{}\verb@      Mn <- sum(cm1$Freq)@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    } else if (type=="cluster") {@\\
+\mbox{}\verb@      Mn <- xtabs(Freq ~ factor(ClusterSize, levels=1:M), data=cm1) @\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    } else if (type=="mc") {@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    # append treatment-specific result to result list@\\
+\mbox{}\verb@    res.trt <- list(res.trt)@\\
+\mbox{}\verb@    names(res.trt) <- trt@\\
+\mbox{}\verb@    res <- c(res, res.trt) @\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  attr(res, "type") <- type@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb?}{?}, \verb@uniprobs@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap3}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  nc <- attr(cmdata, "ncat")@\\
+\mbox{}\verb@  nrespvars <- paste("NResp", 1:nc, sep=".")@\\
+\mbox{}\verb@  M <- max(cmdata$ClusterSize)@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+First, we define the MLE averaged over cluster sizes. The \texttt{Calculate averaged thetas} macro
+creates a $K$-dimensional array of $\thetar{K}(d)$ values.  
+The implementation is based on combining the two summations
+of the definition into one using $n=\sum_{i=1}^K r_i + \sum_{i=1}^K s_i + s_{K+1}$:
+
+\begin{multline} 
+\hthetar{K}=\sum_{n=1}^M\sum_{s_1,\ldots,s_{K}}\frac{\dbinom{n-\tsum{r_i}}{s_1,\ldots,s_{K}}}%
+  {\dbinom{n}{r_1+s_1,\ldots,r_K+s_{K}}}\frac{A_{r_1+s_1,\ldots,r_K+s_K|n}}{M} \\
+  = \sum_{s_1,\ldots,s_{K+1}}\frac{\dbinom{\tsum{s_i}}{s_1,\ldots,s_{K}}}%
+  {\dbinom{\tsum r_i + \tsum{s_i}}{r_1+s_1,\ldots,r_K+s_{K}}}\frac{A_{r_1+s_1,\ldots,r_K+s_K|\tsum r_i + \tsum{s_i}}}{M}.
+\end{multline}%
+
+\begin{flushleft} \small\label{scrap4}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@res.trt <- array(NA, dim=rep(M+1, nc-1))@\\
+\mbox{}\verb@dimnames(res.trt) <- rep.int(list(0:M), nc-1) @\\
+\mbox{}\verb@names(dimnames(res.trt)) <- paste("R", 1:(nc-1), sep="")@\\
+\mbox{}\verb@# indices for possible values of r@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap5}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap6}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap7}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap8}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@#indices for possible values of s @\\
+\mbox{}\verb@# (one more column than for r - ensures summation over all n's)@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap9}
+ }\mbox{}\verb@sidx @,{\footnotesize ?\label{scrap10}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap11}
+ }\mbox{}\verb@ nc @,{\footnotesize ?\label{scrap12}
+ }\mbox{}\verb@ sidxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@for (i in 1:nrow(idx)){@\\
+\mbox{}\verb@  r <- idx[i,]@\\
+\mbox{}\verb@  s.idx <- which(sidxsum <= M-sum(r))@\\
+\mbox{}\verb@  lower.idx <- sidx[s.idx, , drop=FALSE]@\\
+\mbox{}\verb@  upper.idx <- lower.idx + rep(c(r,0), each=nrow(lower.idx))@\\
+\mbox{}\verb@  res.trt[rbind(r)+1] <- @\\
+\mbox{}\verb@    sum(mctab[lower.idx+1] / mctab[upper.idx+1] * atab[upper.idx+1]) / Mn@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+Next, we define the MLEs specific for each cluster size. The macro \texttt{Calculate cluster-specific taus}
+creates a $K+1$ dimensional array, with the cluster size as the first dimension.
+
+\begin{flushleft} \small\label{scrap13}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@res.trt <- array(NA, dim=c(M, rep(M+1, nc-1))) #first dimension is 'n'@\\
+\mbox{}\verb@dimnames(res.trt) <- c(list(1:M), rep.int(list(0:M), nc-1)) @\\
+\mbox{}\verb@names(dimnames(res.trt)) <- c("N",paste("R", 1:(nc-1), sep=""))@\\
+\mbox{}\verb@for (n in which(Mn > 0)){@\\
+\mbox{}\verb@  # indices for possible values of r@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap14}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap15}
+ }\mbox{}\verb@ n @,{\footnotesize ?\label{scrap16}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap17}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  for (i in 1:nrow(idx)){@\\
+\mbox{}\verb@    r <- idx[i,]@\\
+\mbox{}\verb@    s.idx <- which(idxsum <= n-sum(r))@\\
+\mbox{}\verb@    lower.idx <- idx[s.idx, , drop=FALSE]@\\
+\mbox{}\verb@    upper.idx <- lower.idx + rep(r, each=nrow(lower.idx))@\\
+\mbox{}\verb@    lower.idx <- cbind(lower.idx, n-sum(r)-idxsum[s.idx])   #add implied last column@\\
+\mbox{}\verb@    upper.idx <- cbind(upper.idx, n-sum(r)-idxsum[s.idx])   #add implied last column@\\
+\mbox{}\verb@    res.trt[cbind(n,rbind(r)+1)] <- @\\
+\mbox{}\verb@      sum(mctab[lower.idx+1] / mctab[upper.idx+1] * atab[upper.idx+1]) / Mn[n]@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The code for calculating marginally-compatible $tau$'s is described in the next section.
+
+\begin{flushleft} \small\label{scrap18}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@   pim <- mc.est.raw(cm1)[[1]]  #only one treatment group@\\
+\mbox{}\verb@   res.trt <- tau.from.pi(pim)@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.est.raw@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Marginal compatibility}
+
+Under marginal compatibility,
+\begin{equation}
+\pi_{\rvec|n} = \sum_{\tvec \in \V_M} h(\rvec, \tvec, n) \pi_{\tvec|M},
+\end{equation}
+where $h(\rvec, \tvec, n)  = \binom{\tvec}{\rvec}\binom{M-\sum t_i}{n-\sum r_i} \big/ \binom{M}{n} = 
+\prod_{i=1}^K \binom{t_i}{r_i}\binom{M-\sum t_i}{n-\sum r_i} \big/ \binom{M}{n}$ and
+$\V_n=\{(v_1,\ldots,v_K)\in \mathbb{N}^K \mid v_i \geq 0, \sum v_i \leq n\}$ is a $K$-dimensional simplex lattice with maximum
+sum $n$.
+
+\subsection{Estimation}
+
+The following code implements the EM-algorithm for estimating the probabilities
+of response assuming marginal compatibility. Let $(\rvec_i, n_i)$, $i=1,\ldots N$ denote
+the observed data for a given dose level, where $i$ iterates
+through the clusters, $n_i$ is the cluster size and 
+$\rvec_i = (r_1,\ldots,r_K)$ is the observed number of responses of each type.
+
+\begin{equation}\label{F:EMupdate0}
+ \pi_{\tvec|M}^{(t+1)} = \frac{1}{N} \sum_{i=1}^{N} h(\rvec_{i},\tvec,n_{i})
+             \frac{\pi^{(t)}_{\tvec|M}}{\pi^{(t)}_{\rvec_{i}|n_{i}}},
+\end{equation}
+
+The \texttt{mc.est.CMData} function implements the \texttt{mc.est} S3 method for \texttt{CMData} objects, 
+returning a data frame with all  $\pi^{(g)}_{\rvec|n}, n=1,\ldots, M$ probabilities. The `hard' work is done
+by the \texttt{mc.est.raw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
+\begin{flushleft} \small\label{scrap19}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname mc.est@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.est CMData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@param eps numeric; EM iterations proceed until the sum of squared changes fall below \code{eps}  @\\
+\mbox{}\verb@#'@{\tt @}\verb@return For \code{CMData}: A data frame giving the estimated pdf for each treatment and@\\
+\mbox{}\verb@#'clustersize.  The probabilities add up to 1@\\
+\mbox{}\verb@#'for each \code{Trt}/\code{ClusterSize} combination. It has the following columns: @\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Prob}{numeric, the probability of \code{NResp} responses in a@\\
+\mbox{}\verb@#'cluster of size \code{ClusterSize} in group \code{Trt}}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{Trt}{factor, the treatment group}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{ClusterSize}{numeric, the cluster size}@\\
+\mbox{}\verb@#'@{\tt @}\verb@return \item{NResp.1 - NResp.K}{numeric, the number of responses of each type}@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@note@\\
+\mbox{}\verb@#'For multinomial data, the implementation is curerntly written in R, so it is not very fast.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'data(dehp)@\\
+\mbox{}\verb@#'dehp.mc <- mc.est(subset(dehp, Trt=="0"))@\\
+\mbox{}\verb@#'subset(dehp.mc, ClusterSize==2)@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.est.CMData <- function(object, eps=1E-6, ...){@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    nc <- attr(object, "ncat")      @\\
+\mbox{}\verb@    resp.vars1 <- paste("NResp", 1:(nc-1), sep=".")@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@    res <- mc.est.raw(object=object, eps=eps, ...)@\\
+\mbox{}\verb@    margres <- lapply(res, Marginals)  # has only NResp.1 - NResp.K@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    mat.to.df <- function(idx, alist){@\\
+\mbox{}\verb@        dd <- as.data.frame.table(alist[[idx]], responseName="Prob")@\\
+\mbox{}\verb@        dd[c("N", resp.vars1)] <- lapply(dd[c("N", resp.vars1)], function(x)as.numeric(as.character(x)))@\\
+\mbox{}\verb@        dd$Trt <- names(alist)[idx]@\\
+\mbox{}\verb@        dd@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    margres <- lapply(1:length(margres), mat.to.df, alist=margres)@\\
+\mbox{}\verb@    fin <- do.call(rbind, margres)@\\
+\mbox{}\verb@    names(fin)[1] <- "ClusterSize"@\\
+\mbox{}\verb@    last.resp <- paste("NResp", nc, sep=".")@\\
+\mbox{}\verb@    fin[last.resp] <- fin$ClusterSize - rowSums(fin[resp.vars1]) # calculated omitted frequency@\\
+\mbox{}\verb@    fin$Trt <- factor(fin$Trt)@\\
+\mbox{}\verb@    fin <- fin[fin[last.resp] >= 0,]  #remove impossible clusters@\\
+\mbox{}\verb@    fin[c("Trt","ClusterSize", resp.vars1, last.resp, "Prob")]@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est.CMData@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.est.raw@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+First we write a help-function that calculates all the probabilities
+$\pi_{\rvec|n}$ given the set of $\theta_\rvec=\pi_{\rvec|M}$. While there are a variety
+of ways doing this, we use a recursive formula:
+\begin{equation}
+\pi_{\rvec|n}  = \sum_{i=1}^K \frac{r_i+1}{n+1}\pi_{\rvec+\dvec_i|n+1} + \frac{n-\sum_ir_i+1}{n+1}\pi_{\rvec|n+1},
+\end{equation}
+where $\dvec_i$ is the $i$th coordinate basis vector (i.e.\ all its elements are 0, except the $i$th, which is 1).
+
+The input for \texttt{Marginals} is a $K$-dimensional array of $\pi_{\rvec|M}$, and the output is a $(K+1)$-dimensional
+array with the values of $\pi_{\rvec|n}$, $n=1,\ldots,M$ with cluster size as the first dimension
+
+\begin{flushleft} \small\label{scrap20}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@Marginals <- function(theta){@\\
+\mbox{}\verb@  K <- length(dim(theta))@\\
+\mbox{}\verb@  M <- dim(theta)[1]-1@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  res <- array(0, dim=c(M, rep(M+1, K)))@\\
+\mbox{}\verb@  dimnames(res) <- c(N=list(1:M), dimnames(theta))@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  # indices for possible values of r@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap21}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap22}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap23}
+ }\mbox{}\verb@ K+1 @,{\footnotesize ?\label{scrap24}
+ }\mbox{}\verb@ clustersize @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  idx <- idx[ , -1, drop=FALSE]  #remove (K+1)st category@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  for (cs in seq.int(M-1,1)){@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The initialization just copies over the values from \texttt{theta} to the appropriate dimension. Note that when indexing
+the arrays, a ``+1'' is necessary since \texttt{idx} is 0-based.
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap25}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  curridx <- idx[clustersize==M, ,drop=FALSE]@\\
+\mbox{}\verb@  res[cbind(M, curridx+1)] <- theta[curridx+1]@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and loops over the basis vectors.
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap26}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  curridx <- idx[clustersize==cs, , drop=FALSE]@\\
+\mbox{}\verb@  res[cbind(cs, curridx+1)] <- (cs+1- rowSums(curridx))/(cs+1) * res[cbind(cs+1, curridx+1)]@\\
+\mbox{}\verb@  for (j in 1:K){@\\
+\mbox{}\verb@    lookidx <- curridx@\\
+\mbox{}\verb@    lookidx[ ,j] <- lookidx[ ,j] + 1   #add 1 to the j-th coordinate@\\
+\mbox{}\verb@    res[cbind(cs, curridx+1)] <- res[cbind(cs, curridx+1)] + @\\
+\mbox{}\verb@                                 lookidx[,j]/(cs+1) * res[cbind(cs+1, lookidx+1)]@\\
+\mbox{}\verb@  }  @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+The actual EM iterations are performed in \texttt{mc.est.raw}. 
+
+\begin{flushleft} \small\label{scrap27}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@mc.est.raw <- function(object, ...) UseMethod("mc.est.raw")@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.est.raw CMData@\\
+\mbox{}\verb@mc.est.raw.CMData <- function(object, eps=1E-6, ...){@\\
+\mbox{}\verb@  cmdata <- object@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  # indices for possible values of r with clustersize = M@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap28}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap29}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap30}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap31}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@  res <- list()@\\
+\mbox{}\verb@  for (trt in levels(cmdata$Trt)){@\\
+\mbox{}\verb@    cm1 <- cmdata[cmdata$Trt==trt,]@\\
+\mbox{}\verb@    if (nrow(cm1) > 0){@\\
+\mbox{}\verb@      # observed freq lookup table@\\
+\mbox{}\verb@      atab <- array(0, dim=rep(M+1, nc))@\\
+\mbox{}\verb@      a.idx <- data.matrix(cm1[,nrespvars])@\\
+\mbox{}\verb@      atab[a.idx + 1] <- atab[a.idx + 1] + cm1$Freq@\\
+\mbox{}\verb@      Mn <- sum(cm1$Freq)@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      # append treatment-specific result to result list@\\
+\mbox{}\verb@      dimnames(res.trt) <- rep.int(list(0:M), nc-1)@\\
+\mbox{}\verb@      names(dimnames(res.trt)) <- paste("NResp", 1:(nc-1), sep=".")@\\
+\mbox{}\verb@      res.trt <- list(res.trt)@\\
+\mbox{}\verb@    } else {@\\
+\mbox{}\verb@      res.trt <- list(c())@\\
+\mbox{}\verb@    } @\\
+\mbox{}\verb@    res <- c(res, res.trt) @\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  names(res) <- levels(cmdata$Trt)@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+Within each dose group, the algorithm iterates until the sum of squared changes of the parameters is smaller
+than the selected threshold \texttt{eps}.
+\begin{flushleft} \small\label{scrap32}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  res.trt <- array(NA, dim=rep(M+1, nc-1))@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@  #starting values@\\
+\mbox{}\verb@  res.trt[idx + 1] <- 1/nrow(idx)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  sqerror <- 1@\\
+\mbox{}\verb@  #EM update@\\
+\mbox{}\verb@  while (sqerror > eps){@\\
+\mbox{}\verb@        sqerror <- 0@\\
+\mbox{}\verb@        marg <- Marginals(res.trt)@\\
+\mbox{}\verb@    res.new <- array(NA, dim=rep(M+1, nc-1))@\\
+\mbox{}\verb@    res.new[idx + 1] <- 0@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@        @\\
+\mbox{}\verb@    sqerror <- sum((res.new[idx+1] - res.trt[idx+1])^2)@\\
+\mbox{}\verb@        res.trt <- res.new @\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The update of the $\pi_{\tvec|M}$ is performed based on \eqref{F:EMupdate0} rewritten to combine
+clusters of the same type:
+\begin{equation}\label{F:EMupdate1}
+ \pi_{\tvec|M}^{(t+1)} = \frac{1}{N} \sum_{(\rvec,n)}\frac{A_{\rvec,n}}{\pi^{(t)}_{\rvec|n}} 
+                                    h(\rvec,\tvec,n)\pi^{(t)}_{\tvec|M},
+\end{equation}
+looping through each cluster type ($\rvec, n$), and updating all $\pi_{\tvec|M}$ values compatible
+with this type. The compatible $\tvec$ vectors have $t_i\geq r_i$, so they can be written in the form
+$\tvec = \rvec + \svec$, where $s_i\geq 0$ and $\sum s_i \leq M-\sum r_i$.
+
+\begin{flushleft} \small\label{scrap33}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@  for (i in 1:nrow(cm1)){@\\
+\mbox{}\verb@    rlong <- data.matrix(cm1[,nrespvars])[i,]    #nc elements@\\
+\mbox{}\verb@    r <- rlong[-nc]              #without the last category@\\
+\mbox{}\verb@    n <- cm1$ClusterSize[i]  @\\
+\mbox{}\verb@    # indices to which this cluster type contributes@\\
+\mbox{}\verb@    s.idx <- which(idxsum <= M-sum(r))@\\
+\mbox{}\verb@    tidx <- idx[s.idx, , drop=FALSE] + rep(r, each=length(s.idx))@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    hvals <- apply(tidx, 1, function(tvec)prod(choose(tvec, r)) * choose(M-sum(tvec), n-sum(r))) @\\
+\mbox{}\verb@    hvals <- hvals / choose(M, n)@\\
+\mbox{}\verb@    res.new[tidx+1] <- res.new[tidx+1] + atab[rbind(rlong)+1] / marg[rbind(c(n,r+1))] / Mn *@\\
+\mbox{}\verb@                                         hvals * res.trt[tidx+1]@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Manipulating estimates}
+It is helpful to have functions that can convert the marginally compatible estimates from the $\pi$-based
+form obtained in the estimates to the $\tau$'s and to extract the variance-covariance matrix and the 
+correlation parameters.
+
+The \texttt{tau.from.pi} function takes a $K$-dimensional array of $\pi_\rvec$ values, and returns a $K$-dimensional
+array of $\tau_\rvec$ values using
+\begin{equation} 
+ \tau_\rvec = \sum_{\svec}\frac{\binom{n-\sum r_i}{\svec}}%
+  {\binom{n}{\rvec+\svec}}\pi_{\rvec+\svec}.% 
+\end{equation}
+
+\begin{flushleft} \small\label{scrap34}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@ @\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@tau.from.pi <- function(pimat){@\\
+\mbox{}\verb@  K <- length(dim(pimat))@\\
+\mbox{}\verb@  n <- dim(pimat)[1] - 1@\\
+\mbox{}\verb@  res <- array(NA, dim=rep(n+1, K)) @\\
+\mbox{}\verb@  dimnames(res) <- rep.int(list(0:n), K) @\\
+\mbox{}\verb@  names(dimnames(res)) <- paste("R", 1:K, sep="")@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@  # multinomial lookup table@\\
+\mbox{}\verb@  mctab <- mChooseTable(n, K+1, log=FALSE)@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  # indices for possible values of r@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap35}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap36}
+ }\mbox{}\verb@ n @,{\footnotesize ?\label{scrap37}
+ }\mbox{}\verb@ K @,{\footnotesize ?\label{scrap38}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  for (i in 1:nrow(idx)){@\\
+\mbox{}\verb@    r <- idx[i,]@\\
+\mbox{}\verb@    s.idx <- which(idxsum <= n-sum(r))@\\
+\mbox{}\verb@    lower.idx <- idx[s.idx, , drop=FALSE]@\\
+\mbox{}\verb@    upper.idx <- lower.idx + rep(r, each=nrow(lower.idx))@\\
+\mbox{}\verb@    lower.mc.idx <- cbind(lower.idx, n-sum(r)-idxsum[s.idx])   #add implied last column@\\
+\mbox{}\verb@    upper.mc.idx <- cbind(upper.idx, n-sum(r)-idxsum[s.idx])   #add implied last column@\\
+\mbox{}\verb@    res[rbind(r)+1] <- @\\
+\mbox{}\verb@      sum(mctab[lower.mc.idx+1] / mctab[upper.mc.idx+1] * pimat[upper.idx+1])@\\
+\mbox{}\verb@  } @\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The \texttt{p.from.tau} function function takes a $K$-dimensional array of $\tau_\rvec$ values, and returns a vector 
+of marginal probabilities of success $\tau_{\dvec_i}$.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap39}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@p.from.tau <- function(taumat){@\\
+\mbox{}\verb@  K <- length(dim(taumat))@\\
+\mbox{}\verb@  idx <- diag(nrow=K)@\\
+\mbox{}\verb@  taumat[rbind(idx+1)]@\\
+\mbox{}\verb@}    @\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+The \texttt{uniprobs} function provides a wrapper to \texttt{p.from.tau} so that it works with the
+list output of the \texttt{jointprobs} function.
+\begin{flushleft} \small\label{scrap40}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Extract univariate marginal probabilities from joint probability arrays@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Calculates the marginal probability of each event type for exchangeable correlated multinomial@\\
+\mbox{}\verb@#'data based on joint probability estimates calculated by the \code{\link{jointprobs}} function.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param jp the output of \code{\link{jointprobs}} - a list of joint probability arrays by treatment@\\
+\mbox{}\verb@#'@{\tt @}\verb@param type one of c("averaged","cluster","mc") - the type of joint probability. By default,@\\
+\mbox{}\verb@#'the \code{type} attribute of \code{jp} is used.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a list of estimated probability of each outcome by treatment group. The elements are either@\\
+\mbox{}\verb@#'matrices or vectors depending on whether cluster-size specific estimates were requested @\\
+\mbox{}\verb@#' (\code{type="cluster"}) or not.@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{jointprobs}} for calculating the joint probability arrays@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'data(dehp)@\\
+\mbox{}\verb@#'tau <- jointprobs(dehp, type="averaged")@\\
+\mbox{}\verb@#'uniprobs(tau)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'#separately for each cluster size@\\
+\mbox{}\verb@#'tau2 <- jointprobs(dehp, type="cluster")@\\
+\mbox{}\verb@#'uniprobs(tau2)@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@uniprobs <- function(jp, type=attr(jp, "type")){@\\
+\mbox{}\verb@  type <- match.arg(type, c("averaged","cluster","mc"))@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  get.probs <- function(tt){@\\
+\mbox{}\verb@    p <- p.from.tau(tt)@\\
+\mbox{}\verb@    c(p, 1-sum(p)) #add probability of last event type@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@  if (type=="cluster") {@\\
+\mbox{}\verb@    res <- lapply(jp, function(x)apply(x, 1, get.probs))@\\
+\mbox{}\verb@  } else {@\\
+\mbox{}\verb@    res <- lapply(jp, get.probs)@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  res  @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@uniprobs@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+The function \texttt{corr.from.pi} calculates the within- and between-outcome correlation coefficients for the
+exchangeable model. It takes a $K$-dimensional array of $\pi_\rvec$ values, and returns a 2-dimensional
+matrix of $\phi_{ij}$, $i,j=1, \ldots,K$ values using
+\begin{equation} 
+ \phi_{ij} = 
+   \begin{cases}
+   \big[\tau_{(2\dvec_i)} - \tau_{(\dvec_i)}^2\big]\big/\big[\tau_{(\dvec_i)} (1-\tau_{(\dvec_i)})\big] & i=j\\
+  -\big[\tau_{(\dvec_i+\dvec_j)} - \tau_{(\dvec_i)}\tau_{(\dvec_j)}\big]\big/\big[\tau_{(\dvec_i)} \tau_{(\dvec_j)}\big] & i\ne j,\\
+   \end{cases} 
+\end{equation}
+where $\dvec_i=(0,\ldots,0,\overbrace{1}^i,0,\ldots,0)$.
+
+The function \texttt{corr.from.tau} does the same calculation, except it starts with $\tau$'s. 
+\begin{flushleft} \small\label{scrap41}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@corr.from.tau <- function(taumat){@\\
+\mbox{}\verb@  K <- length(dim(taumat))@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  idx <- diag(nrow=K)@\\
+\mbox{}\verb@  numerator <- outer(1:K, 1:K, function(i,j){@\\
+\mbox{}\verb@     taumat[idx[i,]+idx[j,]+1] - taumat[idx[i,]+1] * taumat[idx[j,]+1]})@\\
+\mbox{}\verb@  denominator <- outer(1:K, 1:K, function(i,j){@\\
+\mbox{}\verb@     taumat[idx[i,]+1] * ifelse(i==j, 1-taumat[idx[i,]+1], -taumat[idx[j,]+1])})  @\\
+\mbox{}\verb@  res <- numerator / denominator    #the negative sign is in the denominator@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small\label{scrap42}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@corr.from.pi <- function(pimat){@\\
+\mbox{}\verb@  tt <- tau.from.pi(pimat)@\\
+\mbox{}\verb@  res <- corr.from.tau(tt)@\\
+\mbox{}\verb@  res@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.pi@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+Finally, \texttt{multi.corr} wraps these into an exported function useable on the list output of the
+\texttt{jointprobs} function.
+\begin{flushleft} \small\label{scrap43}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'Extract correlation coefficients from joint probability arrays@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'Calculates the within- and between-outcome correlation coefficients for exchangeable correlated@\\
+\mbox{}\verb@#'multinomial data based on joint probability estimates calculated by the \code{\link{jointprobs}}@\\
+\mbox{}\verb@#'function. These determine the variance inflation due the cluster structure.@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'If \eqn{R_i} and \eqn{R_j} is the number of events of type \eqn{i} and \eqn{j}, respectively, in a cluster of@\\
+\mbox{}\verb@#'size \eqn{n}, then@\\
+\mbox{}\verb@#'\deqn{Var(R_i)= n p_i (1-p_i)(1 + (n-1)\phi_{ii})}@\\
+\mbox{}\verb@#'\deqn{Cov(R_i,R_j)= -n p_i p_j (1 + (n-1)\phi_{ij})}@\\
+\mbox{}\verb@#'where \eqn{p_i} and \eqn{p_j} are the marginal event probabilities and \eqn{\phi_{ij}} are the correlation@\\
+\mbox{}\verb@#' coefficients computed by \code{multi.corr}.@\\
+\mbox{}\verb@#'@{\tt @}\verb@param jp the output of \code{\link{jointprobs}} - a list of joint probability arrays by treatment@\\
+\mbox{}\verb@#'@{\tt @}\verb@param type one of c("averaged","cluster","mc") - the type of joint probability. By default,@\\
+\mbox{}\verb@#'the \code{type} attribute of \code{jp} is used.@\\
+\mbox{}\verb@#'@{\tt @}\verb@return a list of estimated correlation matrices by treatment group. If cluster-size specific @\\
+\mbox{}\verb@#' estimates were requested (\code{(type="cluster")}), then each list elements are a list of@\\
+\mbox{}\verb@#' these matrices for each cluster size.@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@seealso \code{\link{jointprobs}} for calculating the joint probability arrays@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'data(dehp)@\\
+\mbox{}\verb@#'tau <- jointprobs(dehp, type="averaged")@\\
+\mbox{}\verb@#'multi.corr(tau)@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@multi.corr <- function(jp, type=attr(jp, "type")){@\\
+\mbox{}\verb@  type <- match.arg(type, c("averaged","cluster","mc"))@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  if (type=="cluster") {@\\
+\mbox{}\verb@    K <- length(dim(jp[[1]])) - 1@\\
+\mbox{}\verb@    resmat <- lapply(jp, function(x)apply(x, 1, corr.from.tau))@\\
+\mbox{}\verb@    res <- lapply(resmat, function(x){@\\
+\mbox{}\verb@                  lapply(1:ncol(x), function(idx)matrix(x[,idx], nrow=K))})@\\
+\mbox{}\verb@  } else {@\\
+\mbox{}\verb@    res <- lapply(jp, corr.from.tau)@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@  res  @\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\subsection{Testing marginal compatibility}
+The \texttt{mc.test.chisq} function implements a generalization of the Cochran-Armitage trend test
+for correlated multinomial data to test for marginal compatibility. Note that it only tests that the marginal probability of 
+response $p_i$ does not depend on the cluster size for any category.
+
+First, we define the test statistic for one group, and then add the resulting $\chi^2_{K}$-distributed test statistics
+over the $G$ groups for an overall $G\,K$ degree of freedom test.
+
+As above, let $(\rvec_i, n_i)$, $i=1,\ldots N$ denote
+the observed data for a given dose level, where $i$ iterates
+through the clusters, $n_i$ is the cluster size and 
+$\rvec_i = (r_{i1},\ldots,r_{iK})$ is the observed number of responses of each type. Define the raw trend statistic for response $j$
+as
+\begin{equation}\label{E:rawmcstat}
+X_j = \sum_{i=1}^N r_{ij} (c_{n_i} - \bar{c}), \quad j=1,\ldots,K,
+\end{equation}
+where $c_n$ are the scores for the Cochran-Armitage test usually chosen as $c_n=n-(M+1)/2$, and 
+$\bar{c}_g=\big(\sum_{i=1}^{N}n_{i}c_{n_{i}}\big) \big/ \big(\sum_{i=1}^{N}n_{i}\big) = 
+\sum_{n=1}^M M_nnc_n / \sum_{n=1}^M n M_n$ is the weighted
+average of the scores ($M_n$ is the number of clusters of size $n$).
+
+The covariance of two of these test statistics is
+\begin{equation}
+\sigma_{jk}=\text{Cov}(X_j, X_k) = 
+\begin{cases}
+\dsum_{i=1}^N (c_{n_i}-\bar{c})^2 n_i p_{j|n} (1-p_{j|n})[1+(n_i-1)\phi_{jj|n_i}], & j=k;\\ 
+-\dsum_{i=1}^N (c_{n_i}-\bar{c})^2 n_i p_{j|n} p_{k|n}[1+(n_i-1)\phi_{jk|n_i}], & j\ne k,\\ 
+\end{cases}
+\end{equation}
+where $p_{j|n}=\tau_{\dvec_j|n}$ is the probability of event type $O_j$ in clusters of size $n$. Under the
+null hypothesis of marginal compatibility, the dependence of $p_{j|n}$ and $\phi_{jk|n}$ on $n$ can be removed: 
+\begin{equation}\label{E:mcstatcov}
+\sigma_{jk}=
+\begin{cases}
+ p_{j}(1-p_{j})\dsum_{i=1}^N (c_{n_i}-\bar{c})^2 n_i[1+(n_i-1)\phi_{jj}] = 
+   p_{j}(1-p_{j})\dsum_{n=1}^M n M_n (c_n-\bar{c})^2 [1+(n-1)\phi_{jj}], & j=k;\\ 
+-p_{j}p_{k}\dsum_{i=1}^N (c_{n_i}-\bar{c})^2 n_i [1+(n_i-1)\phi_{jk}] =
+  -p_{j}p_{k}\dsum_{n=1}^M n M_n (c_n-\bar{c})^2 [1+(n-1)\phi_{jk}], & j\ne k,\\ 
+\end{cases}
+\end{equation}
+
+The combined test statistic for the given dose group $g$ is
+\begin{equation}
+T^2_g = X_g' \Sigma_g^{-1} X_g \sim \chi^2_K \text{ under }H_0,
+\end{equation}
+where $X_g' =  (X_{g1}, \ldots, X_{gK})$, and $\Sigma_g=(\sigma_{gjk})_{K\times K}$ is its variance-covariance matrix defined by
+\eqref{E:rawmcstat} and \eqref{E:mcstatcov}.
+The unknown values of $p_j$ and $\phi_{jk}$ will be replaced by their estimates under marginal compatibility
+$\hat{\tau}_{g\dvec_j}$ and $\hat{\phi}_{gjk}$.
+
+The final test statistic is an independent combination of the statistics for each dose group:
+\begin{equation}
+T^2=\sum_{g=1}^G T_g^2 \sim \chi^2_{G\,K} \text{ under }H_0.
+\end{equation}
+
+\begin{flushleft} \small\label{scrap44}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname mc.test.chisq@\\
+\mbox{}\verb@#'@{\tt @}\verb@method mc.test.chisq CMData@\\
+\mbox{}\verb@#'@{\tt @}\verb@export@\\
+\mbox{}\verb@#'@{\tt @}\verb@importFrom stats weighted.mean pchisq@\\
+\mbox{}\verb@#'@{\tt @}\verb@examples@\\
+\mbox{}\verb@#'@\\
+\mbox{}\verb@#'data(dehp)@\\
+\mbox{}\verb@#'mc.test.chisq(dehp)@\\
+\mbox{}\verb@#' @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@mc.test.chisq.CMData <- function(object, ...){@\\
+\mbox{}\verb@  cmdata <- object[object$Freq > 0, ]@\\
+\mbox{}\verb@  K <- attr(object, "ncat")-1@\\
+\mbox{}\verb@  nrespvars <- paste("NResp", 1:K, sep=".")@\\
+\mbox{}\verb@  @\\
+\mbox{}\verb@  get.T <- function(x){@\\
+\mbox{}\verb@      x$Trt <- factor(x$Trt)  #remove unused levels@\\
+\mbox{}\verb@      tt <- jointprobs(x, type="mc")[[1]] #only one treatment group@\\
+\mbox{}\verb@      p <- p.from.tau(tt)@\\
+\mbox{}\verb@      phi <- corr.from.tau(tt)@\\
+\mbox{}\verb@      xx <- x[rep(1:nrow(x), x$Freq),]@\\
+\mbox{}\verb@      xx$Freq <- 1@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      M <- max(x$ClusterSize)@\\
+\mbox{}\verb@      Mn <- table(factor(xx$ClusterSize, levels=1:M)) @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@      scores <- (1:M) - (M+1)/2@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      Rmat <- data.matrix(xx[,nrespvars,drop=FALSE])@\\
+\mbox{}\verb@      nvec <- xx$ClusterSize@\\
+\mbox{}\verb@      cvec <- scores[nvec] @\\
+\mbox{}\verb@      c.bar <- weighted.mean(cvec, w=nvec)@\\
+\mbox{}\verb@      cvec <- cvec - c.bar @\\
+\mbox{}\verb@            @\\
+\mbox{}\verb@      X <- t(Rmat) %*% cvec@\\
+\mbox{}\verb@      Sigma <- diag(p, nrow=length(p)) - outer(p,p)  #multinomial vcov@\\
+\mbox{}\verb@      od.matrix <- matrix(0, nrow=K, ncol=K)  #over-dispersion matrix@\\
+\mbox{}\verb@      for (n in 1:M){@\\
+\mbox{}\verb@        od.matrix <- od.matrix + n * Mn[n] * (scores[n]-c.bar)^2 * (1+(n-1)*phi)@\\
+\mbox{}\verb@      }@\\
+\mbox{}\verb@      Sigma <- Sigma * od.matrix@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      Tstat <- t(X) %*% solve(Sigma) %*% X       @\\
+\mbox{}\verb@      Tstat@\\
+\mbox{}\verb@   }@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@   chis <- by(cmdata, cmdata$Trt, get.T)@\\
+\mbox{}\verb@   chis <- chis[1:length(chis)]@\\
+\mbox{}\verb@   chi.list <- list(chi.sq=chis, p=pchisq(chis, df=K, lower.tail=FALSE))@\\
+\mbox{}\verb@   overall.chi <- sum(chis)@\\
+\mbox{}\verb@   overall.df <- length(chis) * K@\\
+\mbox{}\verb@   list(overall.chi=overall.chi, overall.p=pchisq(overall.chi, df=overall.df, lower.tail=FALSE), @\\
+\mbox{}\verb@        individual=chi.list)@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.test.chisq@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\vspace{4ex}
+\end{flushleft}
+\section{Support functions}
+
+The \texttt{Simplex with sums} macro creates a matrix (parameter 1) with rows containing the coordinates of an
+integer lattice within a $d$-dimensional (parameter 3) simplex of size $n$ (parameter 2). That is all $d$-dimensional
+vectors with non-negative elements with sum not exceeding $n$ are listed. The actual sums are saved in a vector (parameter 4).
+Since this is a parametrized macro, it will expand to code, so no actual function calls will be made by the program.
+This should reduce copying of the potentially large matrices.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap45}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Simplex with sums}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@   @{\tt @}\verb@1 <- hcube(rep(@{\tt @}\verb@2+1, @{\tt @}\verb@3))-1@\\
+\mbox{}\verb@   @{\tt @}\verb@4 <- rowSums(@{\tt @}\verb@1)@\\
+\mbox{}\verb@   @{\tt @}\verb@1 <- @{\tt @}\verb@1[@{\tt @}\verb@4 <= @{\tt @}\verb@2, ,drop=FALSE]  #remove impossible indices@\\
+\mbox{}\verb@   @{\tt @}\verb@4 <- @{\tt @}\verb@4[@{\tt @}\verb@4 <= @{\tt @}\verb@2]@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+The \texttt{mChoose} function calculates the multinomial coefficient $\binom{n}{r_1,\ldots,r_K}$. The lower
+part of the expression is passed as a vector. If its values add up to less than $n$, an additional value
+is added. The function is not vectorized.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap46}\raggedright\small
+\NWtarget{nuweb?}{} $\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@    mChoose <- function(n, rvec, log=FALSE){@\\
+\mbox{}\verb@      rlast <- n - sum(rvec)@\\
+\mbox{}\verb@      rveclong <- c(rvec, rlast)@\\
+\mbox{}\verb@      if (any(rveclong < 0)) return(0)@\\
+\mbox{}\verb@      @\\
+\mbox{}\verb@      res <- lgamma(n + 1) - sum(lgamma(rveclong + 1))@\\
+\mbox{}\verb@      if (log) res else exp(res)@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+The \texttt{mChooseTable} function creates a lookup table of the multinomial coefficients 
+with the number of categories $k$ and $n=\max \sum r_i$ given. The results is a $k$-dimensional array, with element
+\texttt{[r1,\ldots,rK]} corresponding to $\binom{\sum (r_i-1)}{r_1-1,\ldots,r_k-1}$ (because the array is 1-indexed, while
+$r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ are missing.
+ 
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap47}\raggedright\small
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
+\mbox{}\verb@  mChooseTable <- function(n, k, log=FALSE){@\\
+\mbox{}\verb@    res <- array(NA, dim=rep.int(n+1, k))@\\
+\mbox{}\verb@    dimnames(res) <- rep.int(list(0:n), k)@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    idx <- hcube(rep.int(n+1, k)) - 1@\\
+\mbox{}\verb@    idx <- idx[rowSums(idx) <= n, ,drop=FALSE]@\\
+\mbox{}\verb@    for (i in 1:nrow(idx)){@\\
+\mbox{}\verb@        r <- idx[i, ]@\\
+\mbox{}\verb@        res[rbind(r)+1] <- mChoose(n=sum(r), rvec=r, log=log)@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    res@\\
+\mbox{}\verb@  }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb?}{?}.
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\section{Files}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \verb@"..\R\ExchMultinomial.R"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+}
+\end{list}}
+
+\section{Macros}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item $\langle\,$Calculate averaged thetas\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate cluster-specific taus\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate MC taus\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate res.new - the value of res.trt for next iteration\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate values for cluster size cs given values for size cs+1\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Define function for multinomial coefficient\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Extract info from cmdata into variables\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
+}
+\item $\langle\,$Initialize for cluster size M\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$MC estimates for given dose group\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Simplex with sums\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+}
+\end{list}}
+
+\section{Identifiers}
+
+
+{\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \verb@corr.from.pi@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@corr.from.tau@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@Marginals@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@mc.est.CMData@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mc.est.raw@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mc.test.chisq@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mChoose@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@multi.corr@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@tau@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@tau.from.pi@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@uniprobs@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\end{list}}
+
+\end{document}
