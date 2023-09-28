@@ -22,9 +22,9 @@ and implement fitting of a variety of existing models and trend tests.
 
 @O ../R/CorrBin-package.R @{
 
-#'Nonparameterics for Correlated Binary and Multinomial Data
+#'Nonparametrics for Correlated Binary and Multinomial Data
 #'
-#'This package implements nonparametric methods for analysing exchangeable
+#'This package implements nonparametric methods for analyzing exchangeable
 #'binary and multinomial data with variable cluster sizes with emphasis on trend testing. The
 #'input should specify the treatment group, cluster-size, and the number of
 #'responses (i.e. the number of cluster elements with the outcome of interest)
@@ -164,7 +164,7 @@ give the number of times the given combination occurs in the data.
 #'of times the given combination occurs in the data.
 #'@@param with.freq logical indicator of whether a frequency variable is present
 #'in the file
-#'@@param ... additonal arguments passed to \code{\link[utils]{read.table}}
+#'@@param ... additional arguments passed to \code{\link[utils]{read.table}}
 #'@@return a \code{CBData} object
 #'@@author Aniko Szabo
 #'@@seealso \code{\link{CBData}}
@@ -525,7 +525,7 @@ can be used in \texttt{ran.CBData}.
 #'@@author Aniko Szabo, aszabo@@@@mcw.edu
 #'@@seealso \code{\link{ran.CBData}} for generating an entire dataset using
 #'these functions
-#'@@references Kuk, A. A (2004) litter-based approach to risk assessement in
+#'@@references Kuk, A. A (2004) Litter-based approach to risk assessment in
 #'developmental toxicity studies via a power family of completely monotone
 #'functions \emph{Applied Statistics}, 52, 51-61.
 #'

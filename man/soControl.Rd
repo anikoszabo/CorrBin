@@ -19,7 +19,7 @@ soControl(
 \item{eps}{a numeric value giving the maximum absolute error in the
 log-likelihood}
 
-\item{max.iter}{an interger specifying the maximal number of iterations}
+\item{max.iter}{an integer specifying the maximal number of iterations}
 
 \item{max.directions}{an integer giving the maximal number of directions
 considered at one step of the ISDM method.  If zero or negative, it is set to

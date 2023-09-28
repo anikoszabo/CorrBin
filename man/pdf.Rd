@@ -49,7 +49,7 @@ lines(0:10, qpower.pdf(0.3, 0.4, 10), type="o", col="red")
 
 }
 \references{
-Kuk, A. A (2004) litter-based approach to risk assessement in
+Kuk, A. A (2004) Litter-based approach to risk assessment in
 developmental toxicity studies via a power family of completely monotone
 functions \emph{Applied Statistics}, 52, 51-61.
 

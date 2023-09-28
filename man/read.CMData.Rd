@@ -15,7 +15,7 @@ in the file}
 \item{with.freq}{logical indicator of whether a frequency variable is present
 in the file}
 
-\item{...}{additonal arguments passed to \code{\link[utils]{read.table}}}
+\item{...}{additional arguments passed to \code{\link[utils]{read.table}}}
 }
 \value{
 a \code{CMData} object

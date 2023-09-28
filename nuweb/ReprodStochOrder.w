@@ -390,7 +390,7 @@ it changes $Q$ only multiplicatively.
 #'@@return \item{Q}{numeric matrix; estimated weights for the mixing distribution}
 #'@@return \item{D}{numeric matrix; directional derivative of the log-likelihood}
 #'@@return \item{loglik}{the achieved value of the log-likelihood}
-#'@@return \item{converge}{a 2-element vector with the achived relative error and
+#'@@return \item{converge}{a 2-element vector with the achieved relative error and
 #'the performed number of iterations}
 #'@@author Aniko Szabo, aszabo@@@@mcw.edu
 #'@@seealso \code{\link{soControl}}
@@ -483,7 +483,7 @@ The \texttt{method} argument allows to select either the EM, or the ISDM method.
 #'@@param method a string specifying the maximization method
 #'@@param eps a numeric value giving the maximum absolute error in the
 #'log-likelihood
-#'@@param max.iter an interger specifying the maximal number of iterations
+#'@@param max.iter an integer specifying the maximal number of iterations
 #'@@param max.directions an integer giving the maximal number of directions
 #'considered at one step of the ISDM method.  If zero or negative, it is set to
 #'the number of non-empty cells. A value of 1 corresponds to the VDM algorithm.

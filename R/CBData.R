@@ -76,7 +76,7 @@ CBData <- function(x, trt, clustersize, nresp, freq=NULL){
 #'of times the given combination occurs in the data.
 #'@param with.freq logical indicator of whether a frequency variable is present
 #'in the file
-#'@param ... additonal arguments passed to \code{\link[utils]{read.table}}
+#'@param ... additional arguments passed to \code{\link[utils]{read.table}}
 #'@return a \code{CBData} object
 #'@author Aniko Szabo
 #'@seealso \code{\link{CBData}}
@@ -358,7 +358,7 @@ ran.CBData <- function(sample.sizes, p.gen.fun=function(g)0.3,
 #'@author Aniko Szabo, aszabo@@mcw.edu
 #'@seealso \code{\link{ran.CBData}} for generating an entire dataset using
 #'these functions
-#'@references Kuk, A. A (2004) litter-based approach to risk assessement in
+#'@references Kuk, A. A (2004) Litter-based approach to risk assessment in
 #'developmental toxicity studies via a power family of completely monotone
 #'functions \emph{Applied Statistics}, 52, 51-61.
 #'

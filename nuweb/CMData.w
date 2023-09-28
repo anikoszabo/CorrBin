@@ -129,7 +129,7 @@ CMData <- function(x, trt, nresp, clustersize=NULL, freq=NULL){
 
 
 The \texttt{read.CMData} function reads in clustered multinomial data from a tab-delimited
-text file. There are two basic data format options:  etiher the counts of responses of all categories are given (and the
+text file. There are two basic data format options:  either the counts of responses of all categories are given (and the
 cluster size is the sum of these counts), or  the total cluster size is given with the counts of all but one category.
 The first column should always give the treatment group, then either the counts for each category (first option, chosen by setting 
 \texttt{with.clustersize = FALSE}), or the size of the cluster followed by the counts for all but one category (second option,
@@ -155,7 +155,7 @@ give the number of times the given combination occurs in the data.
 #'in the file
 #'@@param with.freq logical indicator of whether a frequency variable is present
 #'in the file
-#'@@param ... additonal arguments passed to \code{\link[utils]{read.table}}
+#'@@param ... additional arguments passed to \code{\link[utils]{read.table}}
 #'@@return a \code{CMData} object
 #'@@author Aniko Szabo
 #'@@seealso \code{\link{CMData}}

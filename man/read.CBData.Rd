@@ -15,7 +15,7 @@ of times the given combination occurs in the data.}
 \item{with.freq}{logical indicator of whether a frequency variable is present
 in the file}
 
-\item{...}{additonal arguments passed to \code{\link[utils]{read.table}}}
+\item{...}{additional arguments passed to \code{\link[utils]{read.table}}}
 }
 \value{
 a \code{CBData} object

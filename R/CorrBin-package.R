@@ -1,8 +1,8 @@
 
 
-#'Nonparameterics for Correlated Binary and Multinomial Data
+#'Nonparametrics for Correlated Binary and Multinomial Data
 #'
-#'This package implements nonparametric methods for analysing exchangeable
+#'This package implements nonparametric methods for analyzing exchangeable
 #'binary and multinomial data with variable cluster sizes with emphasis on trend testing. The
 #'input should specify the treatment group, cluster-size, and the number of
 #'responses (i.e. the number of cluster elements with the outcome of interest)

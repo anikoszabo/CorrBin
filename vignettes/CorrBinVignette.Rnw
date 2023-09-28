@@ -51,7 +51,7 @@ last gives the number of times the given combination occured in the data.
 
 Alternatively, if the data is already in a data frame, the \texttt{CBData} function
 can be used to define the roles of the variables. Both \texttt{read.CBData} and \texttt{CBData}
-can accomodate cluster-level data that has not been summarized to have frequencies of each 
+can accommodate cluster-level data that has not been summarized to have frequencies of each 
 clustersize/number of responses combination.
 
 \section{Marginal compatibility}

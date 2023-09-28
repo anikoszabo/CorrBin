@@ -30,7 +30,7 @@ Components \code{Q} and \code{D} are unlikely to be needed by the user.
 
 \item{loglik}{the achieved value of the log-likelihood}
 
-\item{converge}{a 2-element vector with the achived relative error and
+\item{converge}{a 2-element vector with the achieved relative error and
 the performed number of iterations}
 }
 \description{

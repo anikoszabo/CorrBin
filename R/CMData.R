@@ -97,7 +97,7 @@ CMData <- function(x, trt, nresp, clustersize=NULL, freq=NULL){
 #'in the file
 #'@param with.freq logical indicator of whether a frequency variable is present
 #'in the file
-#'@param ... additonal arguments passed to \code{\link[utils]{read.table}}
+#'@param ... additional arguments passed to \code{\link[utils]{read.table}}
 #'@return a \code{CMData} object
 #'@author Aniko Szabo
 #'@seealso \code{\link{CMData}}
