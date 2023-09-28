@@ -56,7 +56,7 @@ We will also need to load support libraries.
 
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
-\NWtarget{nuweb1}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {1}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -66,7 +66,7 @@ We will also need to load support libraries.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -112,12 +112,12 @@ level uses a different sample-size distribution for averaging.
 
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap2}\raggedright\small
-\NWtarget{nuweb2}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {2}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
 \mbox{}\verb@#'@{\tt @}\verb@rdname CorrBin-internal@\\
-\mbox{}\verb@@\hbox{$\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize \NWlink{nuweb14a}{14a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@#' Estimate joint event probabilities for multinomial data@\\
 \mbox{}\verb@#'@\\
 \mbox{}\verb@#' An exchangeable multinomial distribution with \eqn{K+1} categories \eqn{O_1,\ldots,O_{K+1}}, can be@\\
@@ -161,7 +161,7 @@ level uses a different sample-size distribution for averaging.
 \mbox{}\verb@jointprobs <- function(cmdata, type=c("averaged","cluster","mc")){@\\
 \mbox{}\verb@  type <- match.arg(type)@\\
 \mbox{}\verb@  @\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb3a}{3a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  # multinomial lookup table@\\
 \mbox{}\verb@  mctab <- mChooseTable(M, nc, log=FALSE)@\\
 \mbox{}\verb@  @\\
@@ -175,12 +175,12 @@ level uses a different sample-size distribution for averaging.
 \mbox{}\verb@    @\\
 \mbox{}\verb@    if (type=="averaged"){@\\
 \mbox{}\verb@      Mn <- sum(cm1$Freq)@\\
-\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize \NWlink{nuweb3b}{3b}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@    } else if (type=="cluster") {@\\
 \mbox{}\verb@      Mn <- xtabs(Freq ~ factor(ClusterSize, levels=1:M), data=cm1) @\\
-\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize \NWlink{nuweb3k}{3k}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@    } else if (type=="mc") {@\\
-\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize \NWlink{nuweb4a}{4a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@    }@\\
 \mbox{}\verb@    @\\
 \mbox{}\verb@    # append treatment-specific result to result list@\\
@@ -196,15 +196,15 @@ level uses a different sample-size distribution for averaging.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb4a}{4a}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}.\item \NWtxtIdentsUsed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb10c}{10c}, \verb@uniprobs@\nobreak\ \NWlink{nuweb9b}{9b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb?}{?}, \verb@uniprobs@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \end{minipage}\vspace{4ex}
 \end{flushleft}
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap3}\raggedright\small
-\NWtarget{nuweb3a}{} $\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize {3a}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -216,7 +216,7 @@ level uses a different sample-size distribution for averaging.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb2}{2}\NWlink{nuweb6g}{, 6g}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -235,7 +235,7 @@ of the definition into one using $n=\sum_{i=1}^K r_i + \sum_{i=1}^K s_i + s_{K+1
 \end{multline}%
 
 \begin{flushleft} \small\label{scrap4}\raggedright\small
-\NWtarget{nuweb3b}{} $\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize {3b}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate averaged thetas}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -244,18 +244,18 @@ of the definition into one using $n=\sum_{i=1}^K r_i + \sum_{i=1}^K s_i + s_{K+1
 \mbox{}\verb@dimnames(res.trt) <- rep.int(list(0:M), nc-1) @\\
 \mbox{}\verb@names(dimnames(res.trt)) <- paste("R", 1:(nc-1), sep="")@\\
 \mbox{}\verb@# indices for possible values of r@\\
-\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 3c\label{scrap5}
- }\mbox{}\verb@idx @,{\footnotesize 3d\label{scrap6}
- }\mbox{}\verb@ M @,{\footnotesize 3e\label{scrap7}
- }\mbox{}\verb@ nc-1 @,{\footnotesize 3f\label{scrap8}
- }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap5}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap6}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap7}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap8}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@#indices for possible values of s @\\
 \mbox{}\verb@# (one more column than for r - ensures summation over all n's)@\\
-\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 3g\label{scrap9}
- }\mbox{}\verb@sidx @,{\footnotesize 3h\label{scrap10}
- }\mbox{}\verb@ M @,{\footnotesize 3i\label{scrap11}
- }\mbox{}\verb@ nc @,{\footnotesize 3j\label{scrap12}
- }\mbox{}\verb@ sidxsum @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap9}
+ }\mbox{}\verb@sidx @,{\footnotesize ?\label{scrap10}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap11}
+ }\mbox{}\verb@ nc @,{\footnotesize ?\label{scrap12}
+ }\mbox{}\verb@ sidxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@for (i in 1:nrow(idx)){@\\
 \mbox{}\verb@  r <- idx[i,]@\\
 \mbox{}\verb@  s.idx <- which(sidxsum <= M-sum(r))@\\
@@ -269,7 +269,7 @@ of the definition into one using $n=\sum_{i=1}^K r_i + \sum_{i=1}^K s_i + s_{K+1
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb2}{2}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
 
 \item{}
 \end{list}
@@ -279,7 +279,7 @@ Next, we define the MLEs specific for each cluster size. The macro \texttt{Calcu
 creates a $K+1$ dimensional array, with the cluster size as the first dimension.
 
 \begin{flushleft} \small\label{scrap13}\raggedright\small
-\NWtarget{nuweb3k}{} $\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize {3k}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate cluster-specific taus}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -288,11 +288,11 @@ creates a $K+1$ dimensional array, with the cluster size as the first dimension.
 \mbox{}\verb@names(dimnames(res.trt)) <- c("N",paste("R", 1:(nc-1), sep=""))@\\
 \mbox{}\verb@for (n in which(Mn > 0)){@\\
 \mbox{}\verb@  # indices for possible values of r@\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 3l\label{scrap14}
- }\mbox{}\verb@idx @,{\footnotesize 3m\label{scrap15}
- }\mbox{}\verb@ n @,{\footnotesize 3n\label{scrap16}
- }\mbox{}\verb@ nc-1 @,{\footnotesize 3o\label{scrap17}
- }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap14}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap15}
+ }\mbox{}\verb@ n @,{\footnotesize ?\label{scrap16}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap17}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  for (i in 1:nrow(idx)){@\\
 \mbox{}\verb@    r <- idx[i,]@\\
 \mbox{}\verb@    s.idx <- which(idxsum <= n-sum(r))@\\
@@ -309,7 +309,7 @@ creates a $K+1$ dimensional array, with the cluster size as the first dimension.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb2}{2}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
 
 \item{}
 \end{list}
@@ -318,7 +318,7 @@ creates a $K+1$ dimensional array, with the cluster size as the first dimension.
 The code for calculating marginally-compatible $tau$'s is described in the next section.
 
 \begin{flushleft} \small\label{scrap18}\raggedright\small
-\NWtarget{nuweb4a}{} $\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize {4a}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate MC taus}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -329,8 +329,8 @@ The code for calculating marginally-compatible $tau$'s is described in the next 
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb2}{2}.
-\item \NWtxtIdentsUsed\nobreak\  \verb@mc.estraw@\nobreak\ \NWlink{nuweb6g}{6g}, \verb@tau@\nobreak\ \NWlink{nuweb2}{2}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb8b}{8b}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mc.estraw@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -363,7 +363,7 @@ The \texttt{mc.est.CMData} function implements the \texttt{mc.est} S3 method for
 returning a data frame with all  $\pi^{(g)}_{\rvec|n}, n=1,\ldots, M$ probabilities. The `hard' work is done
 by the \texttt{mc.estraw} function, which returns a list of matrices with  $\pi^{(g)}_{\rvec|M}$ values.
 \begin{flushleft} \small\label{scrap19}\raggedright\small
-\NWtarget{nuweb4b}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {4b}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -417,8 +417,8 @@ by the \texttt{mc.estraw} function, which returns a list of matrices with  $\pi^
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est.CMData@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb5}{5}, \verb@mc.estraw@\nobreak\ \NWlink{nuweb6g}{6g}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.est.CMData@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}, \verb@mc.estraw@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -435,7 +435,7 @@ The input for \texttt{Marginals} is a $K$-dimensional array of $\pi_{\rvec|M}$, 
 array with the values of $\pi_{\rvec|n}$, $n=1,\ldots,M$ with cluster size as the first dimension
 
 \begin{flushleft} \small\label{scrap20}\raggedright\small
-\NWtarget{nuweb5}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {5}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -448,16 +448,16 @@ array with the values of $\pi_{\rvec|n}$, $n=1,\ldots,M$ with cluster size as th
 \mbox{}\verb@  dimnames(res) <- c(N=list(1:M), dimnames(theta))@\\
 \mbox{}\verb@  @\\
 \mbox{}\verb@  # indices for possible values of r@\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 6a\label{scrap21}
- }\mbox{}\verb@idx @,{\footnotesize 6b\label{scrap22}
- }\mbox{}\verb@ M @,{\footnotesize 6c\label{scrap23}
- }\mbox{}\verb@ K+1 @,{\footnotesize 6d\label{scrap24}
- }\mbox{}\verb@ clustersize @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap21}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap22}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap23}
+ }\mbox{}\verb@ K+1 @,{\footnotesize ?\label{scrap24}
+ }\mbox{}\verb@ clustersize @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  idx <- idx[ , -1, drop=FALSE]  #remove (K+1)st category@\\
 \mbox{}\verb@  @\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize \NWlink{nuweb6e}{6e}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  for (cs in seq.int(M-1,1)){@\\
-\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize \NWlink{nuweb6f}{6f}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  }@\\
 \mbox{}\verb@  @\\
 \mbox{}\verb@  res@\\
@@ -467,7 +467,7 @@ array with the values of $\pi_{\rvec|n}$, $n=1,\ldots,M$ with cluster size as th
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -477,7 +477,7 @@ The initialization just copies over the values from \texttt{theta} to the approp
 the arrays, a ``+1'' is necessary since \texttt{idx} is 0-based.
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap25}\raggedright\small
-\NWtarget{nuweb6e}{} $\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize {6e}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Initialize for cluster size M}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -488,7 +488,7 @@ the arrays, a ``+1'' is necessary since \texttt{idx} is 0-based.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb5}{5}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
 
 \item{}
 \end{list}
@@ -497,7 +497,7 @@ the arrays, a ``+1'' is necessary since \texttt{idx} is 0-based.
 The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and loops over the basis vectors.
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap26}\raggedright\small
-\NWtarget{nuweb6f}{} $\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize {6f}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate values for cluster size cs given values for size cs+1}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -514,7 +514,7 @@ The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and l
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb5}{5}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
 
 \item{}
 \end{list}
@@ -523,7 +523,7 @@ The iterative step initializes with the last term (with $\pi_{\rvec|n+1}$) and l
 The actual EM iterations are performed in \texttt{mc.estraw}. 
 
 \begin{flushleft} \small\label{scrap27}\raggedright\small
-\NWtarget{nuweb6g}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {6g}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -535,14 +535,14 @@ The actual EM iterations are performed in \texttt{mc.estraw}.
 \mbox{}\verb@#'@{\tt @}\verb@method mc.estraw CMData@\\
 \mbox{}\verb@mc.estraw.CMData <- function(object, eps=1E-6, ...){@\\
 \mbox{}\verb@  cmdata <- object@\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb3a}{3a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Extract info from cmdata into variables}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  @\\
 \mbox{}\verb@  # indices for possible values of r with clustersize = M@\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 6h\label{scrap28}
- }\mbox{}\verb@idx @,{\footnotesize 6i\label{scrap29}
- }\mbox{}\verb@ M @,{\footnotesize 6j\label{scrap30}
- }\mbox{}\verb@ nc-1 @,{\footnotesize 6k\label{scrap31}
- }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap28}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap29}
+ }\mbox{}\verb@ M @,{\footnotesize ?\label{scrap30}
+ }\mbox{}\verb@ nc-1 @,{\footnotesize ?\label{scrap31}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@@\\
 \mbox{}\verb@  res <- list()@\\
 \mbox{}\verb@  for (trt in levels(cmdata$Trt)){@\\
@@ -554,7 +554,7 @@ The actual EM iterations are performed in \texttt{mc.estraw}.
 \mbox{}\verb@      atab[a.idx + 1] <- atab[a.idx + 1] + cm1$Freq@\\
 \mbox{}\verb@      Mn <- sum(cm1$Freq)@\\
 \mbox{}\verb@      @\\
-\mbox{}\verb@      @\hbox{$\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize \NWlink{nuweb7}{7}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@      @\hbox{$\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@      @\\
 \mbox{}\verb@      # append treatment-specific result to result list@\\
 \mbox{}\verb@      dimnames(res.trt) <- rep.int(list(0:M), nc-1)@\\
@@ -572,7 +572,7 @@ The actual EM iterations are performed in \texttt{mc.estraw}.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -581,7 +581,7 @@ The actual EM iterations are performed in \texttt{mc.estraw}.
 Within each dose group, the algorithm iterates until the sum of squared changes of the parameters is smaller
 than the selected threshold \texttt{eps}.
 \begin{flushleft} \small\label{scrap32}\raggedright\small
-\NWtarget{nuweb7}{} $\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize {7}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape MC estimates for given dose group}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -598,7 +598,7 @@ than the selected threshold \texttt{eps}.
 \mbox{}\verb@    res.new <- array(NA, dim=rep(M+1, nc-1))@\\
 \mbox{}\verb@    res.new[idx + 1] <- 0@\\
 \mbox{}\verb@    @\\
-\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize \NWlink{nuweb8a}{8a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@        @\\
 \mbox{}\verb@    sqerror <- sum((res.new[idx+1] - res.trt[idx+1])^2)@\\
 \mbox{}\verb@        res.trt <- res.new @\\
@@ -608,8 +608,8 @@ than the selected threshold \texttt{eps}.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb6g}{6g}.
-\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb5}{5}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@Marginals@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -625,7 +625,7 @@ with this type. The compatible $\tvec$ vectors have $t_i\geq r_i$, so they can b
 $\tvec = \rvec + \svec$, where $s_i\geq 0$ and $\sum s_i \leq M-\sum r_i$.
 
 \begin{flushleft} \small\label{scrap33}\raggedright\small
-\NWtarget{nuweb8a}{} $\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize {8a}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Calculate res.new - the value of res.trt for next iteration}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -647,7 +647,7 @@ $\tvec = \rvec + \svec$, where $s_i\geq 0$ and $\sum s_i \leq M-\sum r_i$.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb7}{7}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
 
 \item{}
 \end{list}
@@ -666,7 +666,7 @@ array of $\tau_\rvec$ values using
 \end{equation}
 
 \begin{flushleft} \small\label{scrap34}\raggedright\small
-\NWtarget{nuweb8b}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {8b}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@ @\\
@@ -682,11 +682,11 @@ array of $\tau_\rvec$ values using
 \mbox{}\verb@  mctab <- mChooseTable(n, K+1, log=FALSE)@\\
 \mbox{}\verb@  @\\
 \mbox{}\verb@  # indices for possible values of r@\\
-\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize 8c\label{scrap35}
- }\mbox{}\verb@idx @,{\footnotesize 8d\label{scrap36}
- }\mbox{}\verb@ n @,{\footnotesize 8e\label{scrap37}
- }\mbox{}\verb@ K @,{\footnotesize 8f\label{scrap38}
- }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@  @\hbox{$\langle\,${\itshape Simplex with sums}\nobreak\ ({\footnotesize ?\label{scrap35}
+ }\mbox{}\verb@idx @,{\footnotesize ?\label{scrap36}
+ }\mbox{}\verb@ n @,{\footnotesize ?\label{scrap37}
+ }\mbox{}\verb@ K @,{\footnotesize ?\label{scrap38}
+ }\mbox{}\verb@ idxsum @ ) {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$}\verb@@\\
 \mbox{}\verb@  for (i in 1:nrow(idx)){@\\
 \mbox{}\verb@    r <- idx[i,]@\\
 \mbox{}\verb@    s.idx <- which(idxsum <= n-sum(r))@\\
@@ -704,7 +704,7 @@ array of $\tau_\rvec$ values using
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -715,7 +715,7 @@ of marginal probabilities of success $\tau_{\dvec_i}$.
 
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap39}\raggedright\small
-\NWtarget{nuweb9a}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {9a}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -730,8 +730,8 @@ of marginal probabilities of success $\tau_{\dvec_i}$.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb2}{2}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \end{minipage}\vspace{4ex}
@@ -739,7 +739,7 @@ of marginal probabilities of success $\tau_{\dvec_i}$.
 The \texttt{uniprobs} function provides a wrapper to \texttt{p.from.tau} so that it works with the
 list output of the \texttt{jointprobs} function.
 \begin{flushleft} \small\label{scrap40}\raggedright\small
-\NWtarget{nuweb9b}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {9b}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -784,8 +784,8 @@ list output of the \texttt{jointprobs} function.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@uniprobs@\nobreak\ \NWlink{nuweb2}{2}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb2}{2}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@uniprobs@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -804,7 +804,7 @@ where $\dvec_i=(0,\ldots,0,\overbrace{1}^i,0,\ldots,0)$.
 
 The function \texttt{corr.from.tau} does the same calculation, except it starts with $\tau$'s. 
 \begin{flushleft} \small\label{scrap41}\raggedright\small
-\NWtarget{nuweb10a}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {10a}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -826,14 +826,14 @@ The function \texttt{corr.from.tau} does the same calculation, except it starts 
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb10b}{10b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb2}{2}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.\item \NWtxtIdentsUsed\nobreak\  \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
 \end{flushleft}
 \begin{flushleft} \small\label{scrap42}\raggedright\small
-\NWtarget{nuweb10b}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {10b}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -849,8 +849,8 @@ The function \texttt{corr.from.tau} does the same calculation, except it starts 
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.pi@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb10a}{10a}, \verb@tau@\nobreak\ \NWlink{nuweb2}{2}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb8b}{8b}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@corr.from.pi@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau.from.pi@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -858,7 +858,7 @@ The function \texttt{corr.from.tau} does the same calculation, except it starts 
 Finally, \texttt{multi.corr} wraps these into an exported function useable on the list output of the
 \texttt{jointprobs} function.
 \begin{flushleft} \small\label{scrap43}\raggedright\small
-\NWtarget{nuweb10c}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {10c}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -906,8 +906,8 @@ Finally, \texttt{multi.corr} wraps these into an exported function useable on th
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb2}{2}.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb10a}{10a}, \verb@tau@\nobreak\ \NWlink{nuweb2}{2}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@multi.corr@\nobreak\ \NWlink{nuweb?}{?}.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -968,7 +968,7 @@ T^2=\sum_{g=1}^G T_g^2 \sim \chi^2_{G\,K} \text{ under }H_0.
 \end{equation}
 
 \begin{flushleft} \small\label{scrap44}\raggedright\small
-\NWtarget{nuweb12}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {12}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -1031,8 +1031,8 @@ T^2=\sum_{g=1}^G T_g^2 \sim \chi^2_{G\,K} \text{ under }H_0.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@mc.test.chisq@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb10a}{10a}, \verb@tau@\nobreak\ \NWlink{nuweb2}{2}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mc.test.chisq@\nobreak\ \NWtxtIdentsNotUsed.\item \NWtxtIdentsUsed\nobreak\  \verb@corr.from.tau@\nobreak\ \NWlink{nuweb?}{?}, \verb@tau@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \vspace{4ex}
@@ -1047,7 +1047,7 @@ This should reduce copying of the potentially large matrices.
 
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap45}\raggedright\small
-\NWtarget{nuweb13}{} $\langle\,${\itshape Simplex with sums}\nobreak\ {\footnotesize {13}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Simplex with sums}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -1060,7 +1060,7 @@ This should reduce copying of the potentially large matrices.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb3b}{3b}\NWlink{nuweb3k}{k}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 
 \item{}
 \end{list}
@@ -1072,7 +1072,7 @@ is added. The function is not vectorized.
 
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap46}\raggedright\small
-\NWtarget{nuweb14a}{} $\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize {14a}}$\,\rangle\equiv$
+\NWtarget{nuweb?}{} $\langle\,${\itshape Define function for multinomial coefficient}\nobreak\ {\footnotesize {?}}$\,\rangle\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -1089,8 +1089,8 @@ is added. The function is not vectorized.
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtMacroRefIn\ \NWlink{nuweb2}{2}.
-\item \NWtxtIdentsDefed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb14b}{14b}.
+\item \NWtxtMacroRefIn\ \NWlink{nuweb?}{?}.
+\item \NWtxtIdentsDefed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \end{minipage}\vspace{4ex}
@@ -1102,7 +1102,7 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
  
 \begin{flushleft} \small
 \begin{minipage}{\linewidth}\label{scrap47}\raggedright\small
-\NWtarget{nuweb14b}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {14b}}$\equiv$
+\NWtarget{nuweb?}{} \verb@"..\R\ExchMultinomial.R"@\nobreak\ {\footnotesize {?}}$\equiv$
 \vspace{-1ex}
 \begin{list}{}{} \item
 \mbox{}\verb@@\\
@@ -1124,8 +1124,8 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
 \vspace{-1.5ex}
 \footnotesize
 \begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \NWtxtFileDefBy\ \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
-\item \NWtxtIdentsUsed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb14a}{14a}.
+\item \NWtxtFileDefBy\ \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \NWtxtIdentsUsed\nobreak\  \verb@mChoose@\nobreak\ \NWlink{nuweb?}{?}.
 \item{}
 \end{list}
 \end{minipage}\vspace{4ex}
@@ -1134,7 +1134,7 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
 
 
 {\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \verb@"..\R\ExchMultinomial.R"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb1}{1}\NWlink{nuweb2}{, 2}\NWlink{nuweb4b}{, 4b}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}\NWlink{nuweb14b}{, 14b}.
+\item \verb@"..\R\ExchMultinomial.R"@ {\footnotesize {\NWtxtDefBy} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 }
 \end{list}}
 
@@ -1142,17 +1142,17 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
 
 
 {\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item $\langle\,$Calculate averaged thetas\nobreak\ {\footnotesize \NWlink{nuweb3b}{3b}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb2}{2}.}
-\item $\langle\,$Calculate cluster-specific taus\nobreak\ {\footnotesize \NWlink{nuweb3k}{3k}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb2}{2}.}
-\item $\langle\,$Calculate MC taus\nobreak\ {\footnotesize \NWlink{nuweb4a}{4a}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb2}{2}.}
-\item $\langle\,$Calculate res.new - the value of res.trt for next iteration\nobreak\ {\footnotesize \NWlink{nuweb8a}{8a}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb7}{7}.}
-\item $\langle\,$Calculate values for cluster size cs given values for size cs+1\nobreak\ {\footnotesize \NWlink{nuweb6f}{6f}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb5}{5}.}
-\item $\langle\,$Define function for multinomial coefficient\nobreak\ {\footnotesize \NWlink{nuweb14a}{14a}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb2}{2}.}
-\item $\langle\,$Extract info from cmdata into variables\nobreak\ {\footnotesize \NWlink{nuweb3a}{3a}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb2}{2}\NWlink{nuweb6g}{, 6g}.
+\item $\langle\,$Calculate averaged thetas\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate cluster-specific taus\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate MC taus\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate res.new - the value of res.trt for next iteration\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Calculate values for cluster size cs given values for size cs+1\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Define function for multinomial coefficient\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Extract info from cmdata into variables\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}.
 }
-\item $\langle\,$Initialize for cluster size M\nobreak\ {\footnotesize \NWlink{nuweb6e}{6e}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb5}{5}.}
-\item $\langle\,$MC estimates for given dose group\nobreak\ {\footnotesize \NWlink{nuweb7}{7}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb6g}{6g}.}
-\item $\langle\,$Simplex with sums\nobreak\ {\footnotesize \NWlink{nuweb13}{13}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb3b}{3b}\NWlink{nuweb3k}{k}\NWlink{nuweb5}{, 5}\NWlink{nuweb6g}{, 6g}\NWlink{nuweb8b}{, 8b}.
+\item $\langle\,$Initialize for cluster size M\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$MC estimates for given dose group\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}.}
+\item $\langle\,$Simplex with sums\nobreak\ {\footnotesize \NWlink{nuweb?}{?}}$\,\rangle$ {\footnotesize {\NWtxtRefIn} \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
 }
 \end{list}}
 
@@ -1160,17 +1160,17 @@ $r_i$ can go from 0). The values in the array with coordinate sum exceeding $n$ 
 
 
 {\small\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
-\item \verb@corr.from.pi@: \underline{\NWlink{nuweb10b}{10b}}.
-\item \verb@corr.from.tau@: \underline{\NWlink{nuweb10a}{10a}}\NWlink{nuweb10b}{, 10b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}.
-\item \verb@Marginals@: \NWlink{nuweb4b}{4b}, \underline{\NWlink{nuweb5}{5}}\NWlink{nuweb7}{, 7}.
-\item \verb@mc.est.CMData@: \underline{\NWlink{nuweb4b}{4b}}.
-\item \verb@mc.estraw@: \NWlink{nuweb4a}{4a}\NWlink{nuweb4b}{b}, \underline{\NWlink{nuweb6g}{6g}}.
-\item \verb@mc.test.chisq@: \underline{\NWlink{nuweb12}{12}}.
-\item \verb@mChoose@: \underline{\NWlink{nuweb14a}{14a}}\NWlink{nuweb14b}{, 14b}.
-\item \verb@multi.corr@: \NWlink{nuweb2}{2}, \underline{\NWlink{nuweb10c}{10c}}.
-\item \verb@tau@: \underline{\NWlink{nuweb2}{2}}\NWlink{nuweb4a}{, 4a}\NWlink{nuweb8b}{, 8b}\NWlink{nuweb9a}{, 9a}\NWlink{nuweb9b}{b}\NWlink{nuweb10a}{, 10a}\NWlink{nuweb10b}{b}\NWlink{nuweb10c}{c}\NWlink{nuweb12}{, 12}.
-\item \verb@tau.from.pi@: \NWlink{nuweb4a}{4a}, \underline{\NWlink{nuweb8b}{8b}}\NWlink{nuweb10b}{, 10b}.
-\item \verb@uniprobs@: \NWlink{nuweb2}{2}, \underline{\NWlink{nuweb9b}{9b}}.
+\item \verb@corr.from.pi@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@corr.from.tau@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@Marginals@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@mc.est.CMData@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mc.estraw@: \NWlink{nuweb?}{?}\NWlink{nuweb?}{, ?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mc.test.chisq@: \underline{\NWlink{nuweb?}{?}}.
+\item \verb@mChoose@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@multi.corr@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
+\item \verb@tau@: \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}\NWlink{nuweb?}{, ?}.
+\item \verb@tau.from.pi@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}\NWlink{nuweb?}{, ?}.
+\item \verb@uniprobs@: \NWlink{nuweb?}{?}, \underline{\NWlink{nuweb?}{?}}.
 \end{list}}
 
 \end{document}

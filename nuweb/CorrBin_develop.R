@@ -18,7 +18,9 @@ run_examples()  # or dev_example("ran.CMData")
 load_all()
 
 build()
-check(check_dir = "c:/TEMP", cran = TRUE)
+check(check_dir = "c:/TEMP", cran = TRUE, manual = TRUE)
 
 release_checks()
 spell_check()
+
+check_win_release()
