@@ -67,11 +67,11 @@ subset(dehp.mc, ClusterSize==2)
 data(shelltox)
 sh.mc <- mc.est(shelltox)
 
-library(lattice)
+if (require(lattice)){
 xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSize>0, 
    type="l", as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),
    xlab="Number of responses", ylab="Probability P(R=r|N=n)")
-
+}
 }
 \references{
 George EO, Cheon K, Yuan Y, Szabo A (2016)  On Exchangeable Multinomial Distributions. #'\emph{Biometrika} 103(2), 397-408.

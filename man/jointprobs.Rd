@@ -10,7 +10,7 @@ jointprobs(cmdata, type = c("averaged", "cluster", "mc"))
 \item{cmdata}{a \code{CMData} object}
 
 \item{type}{character string describing the desired type of estimate:
-\itemize{
+\describe{
  \item{"averaged"}{ - averaged over the observed cluster-size distribution within each treatment}
  \item{"cluster"}{ - separately for each cluster size within each treatment}
  \item{"mc"}{ - assuming marginal compatibility, ie that \eqn{\tau} does not depend on the cluster-size}
@@ -18,7 +18,7 @@ jointprobs(cmdata, type = c("averaged", "cluster", "mc"))
 }
 \value{
 a list with an array of estimates for each treatment. For a multinomial distribution with
-\eqn{K+1} categories the arrays will have either \eqn{K+1} or {K} dimensions, depending on whether 
+\eqn{K+1} categories the arrays will have either \eqn{K+1} or \eqn{K} dimensions, depending on whether 
 cluster-size specific estimates (\code{type="cluster"}) or pooled estimates 
 (\code{type="averaged"} or \code{type="mc"}) are requested. For the cluster-size specific estimates 
 the first dimension is the cluster-size. Each additional dimension is a possible outcome.

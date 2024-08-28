@@ -250,11 +250,11 @@ treatment group. For the package the compiled library needs to be loaded.
 \mbox{}\verb@#'data(shelltox)@\\
 \mbox{}\verb@#'sh.mc <- mc.est(shelltox)@\\
 \mbox{}\verb@#'@\\
-\mbox{}\verb@#'library(lattice)@\\
+\mbox{}\verb@#'if (require(lattice)){@\\
 \mbox{}\verb@#'xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSize>0, @\\
 \mbox{}\verb@#'    type="l", as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),@\\
 \mbox{}\verb@#'    xlab="Number of responses", ylab="Probability P(R=r|N=n)")@\\
-\mbox{}\verb@#'@\\
+\mbox{}\verb@#'}@\\
 \mbox{}\verb@#'@{\tt @}\verb@name mc.est@\\
 \mbox{}\verb@@\\
 \mbox{}\verb@mc.est <- function(object,...) UseMethod("mc.est")@\\

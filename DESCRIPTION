@@ -2,7 +2,7 @@ Package: CorrBin
 Title: Nonparametrics with Clustered Binary and Multinomial Data
 Version: 1.6.2
 Date: 2024-08-28
-Authors@R: person("Aniko", "Szabo", role=c("aut","cre"), email="aszabo@mcw.edu")
+Authors@R: person("Aniko", "Szabo", role=c("aut","cre","cph"), email="aszabo@mcw.edu")
 Encoding: UTF-8
 Depends:
     R(>= 2.6.0)

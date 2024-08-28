@@ -130,13 +130,13 @@ level uses a different sample-size distribution for averaging.
 \mbox{}\verb@#'@\\
 \mbox{}\verb@#'@{\tt @}\verb@param cmdata a \code{CMData} object@\\
 \mbox{}\verb@#'@{\tt @}\verb@param type character string describing the desired type of estimate:@\\
-\mbox{}\verb@#' \itemize{@\\
+\mbox{}\verb@#' \describe{@\\
 \mbox{}\verb@#'  \item{"averaged"}{ - averaged over the observed cluster-size distribution within each treatment}@\\
 \mbox{}\verb@#'  \item{"cluster"}{ - separately for each cluster size within each treatment}@\\
 \mbox{}\verb@#'  \item{"mc"}{ - assuming marginal compatibility, ie that \eqn{\tau} does not depend on the cluster-size}@\\
 \mbox{}\verb@#' }@\\
 \mbox{}\verb@#'@{\tt @}\verb@return a list with an array of estimates for each treatment. For a multinomial distribution with@\\
-\mbox{}\verb@#' \eqn{K+1} categories the arrays will have either \eqn{K+1} or {K} dimensions, depending on whether @\\
+\mbox{}\verb@#' \eqn{K+1} categories the arrays will have either \eqn{K+1} or \eqn{K} dimensions, depending on whether @\\
 \mbox{}\verb@#' cluster-size specific estimates (\code{type="cluster"}) or pooled estimates @\\
 \mbox{}\verb@#' (\code{type="averaged"} or \code{type="mc"}) are requested. For the cluster-size specific estimates @\\
 \mbox{}\verb@#' the first dimension is the cluster-size. Each additional dimension is a possible outcome. @\\
