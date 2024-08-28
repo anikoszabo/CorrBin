@@ -4,6 +4,12 @@ source('nuweb/Nuweb.R')
 cb <- as.package(".")
 nuweb(cb)
 
+shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet  ReprodStochOrder.tex")
+shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet  ExchMultinomial.tex")
+shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet  CBData.tex")
+shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet  CMData.tex")
+
+nuweb(cb)
 shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet --clean ReprodStochOrder.tex")
 shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet --clean ExchMultinomial.tex")
 shell("cd c:/Github/CorrBin/nuweb/ && texify --pdf --quiet --clean CBData.tex")

@@ -27,7 +27,8 @@ for correlated binary data.
 }
 \details{
 The actual work is performed by the \code{\link[geepack]{geese}} function of
-the \code{geepack} library. This function only provides a convenient wrapper
+the \code{geepack} library, which is required for this feature to work.
+This function only provides a convenient wrapper
 to obtain the results in the same format as \code{\link{RS.trend.test}} and
 \code{\link{SO.trend.test}}.
 
@@ -38,8 +39,9 @@ distributed, and a two-sided p-value can be easily computed if needed.
 \examples{
 
 data(shelltox)
-GEE.trend.test(shelltox, "trend")
-
+if (require(geepack)){
+ GEE.trend.test(shelltox, "trend")
+}
 }
 \seealso{
 \code{\link{RS.trend.test}}, \code{\link{SO.trend.test}} for

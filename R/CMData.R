@@ -83,7 +83,7 @@ CMData <- function(x, trt, nresp, clustersize=NULL, freq=NULL){
 #'Read data from external file into a CMData object
 #'
 #'A convenience function to read data from specially structured file directly
-#'into a \code{CMData} object. There are two basic data format options:  etiher the counts of responses of all categories are given (and the
+#'into a \code{CMData} object. There are two basic data format options:  either the counts of responses of all categories are given (and the
 #'cluster size is the sum of these counts), or  the total cluster size is given with the counts of all but one category.
 #'The first column should always give the treatment group, then either the counts for each category (first option, chosen by setting 
 #'\code{with.clustersize = FALSE}), or the size of the cluster followed by the counts for all but one category (second option,
@@ -293,7 +293,7 @@ mg.Resample <- function(n, clustersizes, param){
 #' the parameter vector of the Dirichlet distribution is passed 
 #' (see \link[dirmult]{rdirichlet}).
 #'
-#'@import dirmult
+#'@importFrom dirmult rdirichlet
 #'@export
 #'@rdname multinom.gen 
 
@@ -312,7 +312,7 @@ mg.DirMult <- function(n, clustersizes, param){
 #'They should have \emph{K-1} dimensions for a \emph{K}-variate multinomial.
 #'
 #'@export
-#'@import mvtnorm
+#'@importFrom mvtnorm rmvnorm
 #'@rdname multinom.gen 
 
 mg.LogitNorm <- function(n, clustersizes, param){

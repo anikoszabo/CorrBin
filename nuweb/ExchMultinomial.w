@@ -40,7 +40,7 @@ We will be using object of \texttt{CMData} class, which is defined in \texttt{CM
 We will also need to load support libraries.
 
 @o ..\R\ExchMultinomial.R @{
-#'@@import combinat
+#'@@importFrom combinat hcube
 @}
 
 \section{Exchangeable multinomial model}\label{S:MLE} 

@@ -217,7 +217,8 @@ RS.trend.test <- function(cbdata){
 #'for correlated binary data.
 #'
 #'The actual work is performed by the \code{\link[geepack]{geese}} function of
-#'the \code{geepack} library. This function only provides a convenient wrapper
+#'the \code{geepack} library, which is required for this feature to work.
+#'This function only provides a convenient wrapper
 #'to obtain the results in the same format as \code{\link{RS.trend.test}} and
 #'\code{\link{SO.trend.test}}.
 #'
@@ -226,7 +227,6 @@ RS.trend.test <- function(cbdata){
 #'distributed, and a two-sided p-value can be easily computed if needed.
 #'
 #'@export
-#'@import geepack
 #'@importFrom stats binomial pnorm
 #'@param cbdata a \code{\link{CBData}} object
 #'@param scale.method character string specifying the assumption about the
@@ -243,21 +243,25 @@ RS.trend.test <- function(cbdata){
 #'@examples
 #'
 #'data(shelltox)
-#'GEE.trend.test(shelltox, "trend")
-#'
+#'if (require(geepack)){
+#'  GEE.trend.test(shelltox, "trend")
+#'}
 
 
 GEE.trend.test <- function(cbdata, scale.method=c("fixed", "trend", "all")){
+  if (!requireNamespace("geepack", quietly = TRUE)) {
+        stop("Please install geepack: install.packages('geepack')")
+        }
   ucb <- unwrap.CBData(cbdata)
   scale.method <- match.arg(scale.method)
   if (scale.method=="fixed") {
-    geemod <- geese(Resp~unclass(Trt), id=ucb$ID, scale.fix=FALSE, data=ucb,
+    geemod <- geepack::geese(Resp~unclass(Trt), id=ucb$ID, scale.fix=FALSE, data=ucb,
                     family=binomial, corstr="exch") }  
   else if (scale.method=="trend"){
-    geemod <- geese(Resp~unclass(Trt), sformula=~unclass(Trt), id=ucb$ID,  data=ucb,
+    geemod <- geepack::geese(Resp~unclass(Trt), sformula=~unclass(Trt), id=ucb$ID,  data=ucb,
                    family=binomial, sca.link="log", corstr="exch")}
   else if (scale.method=="all"){
-    geemod <- geese(Resp~unclass(Trt), id=ucb$ID,  sformula=~Trt, data=ucb,
+    geemod <- geepack::geese(Resp~unclass(Trt), id=ucb$ID,  sformula=~Trt, data=ucb,
                     family=binomial, sca.link="log", corstr="exch") } 
   geesum <- summary(geemod)
   testres <- geesum$mean[2,"estimate"]/geesum$mean[2,"san.se"]
