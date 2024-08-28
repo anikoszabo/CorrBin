@@ -1,5 +1,5 @@
 
-#'@import combinat
+#'@importFrom combinat hcube
 
 #'@rdname CorrBin-internal
 

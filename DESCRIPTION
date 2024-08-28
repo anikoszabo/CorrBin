@@ -1,7 +1,7 @@
 Package: CorrBin
 Title: Nonparametrics with Clustered Binary and Multinomial Data
-Version: 1.6.1
-Date: 2023-09-28
+Version: 1.6.2
+Date: 2024-08-28
 Authors@R: person("Aniko", "Szabo", role=c("aut","cre"), email="aszabo@mcw.edu")
 Encoding: UTF-8
 Depends:
@@ -9,10 +9,10 @@ Depends:
 Imports:
     boot,
     combinat,
-    geepack,
     dirmult,
     mvtnorm
 Suggests:
+    geepack,
     lattice
 Description: Implements non-parametric analyses for clustered
     binary and multinomial data. The elements of the cluster are assumed

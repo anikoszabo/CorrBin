@@ -384,7 +384,7 @@ mg.Resample <- function(n, clustersizes, param){
 #' the parameter vector of the Dirichlet distribution is passed 
 #' (see \link[dirmult]{rdirichlet}).
 #'
-#'@@import dirmult
+#'@@importFrom dirmult rdirichlet
 #'@@export
 #'@@rdname multinom.gen 
 @}
@@ -408,7 +408,7 @@ mg.DirMult <- function(n, clustersizes, param){
 #'They should have \emph{K-1} dimensions for a \emph{K}-variate multinomial.
 #'
 #'@@export
-#'@@import mvtnorm
+#'@@importFrom mvtnorm rmvnorm
 #'@@rdname multinom.gen 
 @}
 @O ../R/CMData.R @{
