@@ -24,13 +24,21 @@ run_examples()  # or dev_example("ran.CMData")
 load_all()
 
 build()
-check(check_dir = "c:/TEMP", cran = TRUE, manual = TRUE)
+check(check_dir = "c:/TEMP", cran = TRUE, manual = TRUE, remote = TRUE)
 
 release_checks()
 spell_check()
 
 check_win_release()
+check_win_devel()
 
-check_rhub()
+check_rhub()  # did not work last time due to certificate error?
 
-use_cran_comments()
+urlchecker::url_check()
+
+tools::dependsOnPkgs("CorrBin")
+
+use_cran_comments()  #run first time
+
+# Final step:
+submit_cran()

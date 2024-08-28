@@ -22,7 +22,7 @@ a \code{CMData} object
 }
 \description{
 A convenience function to read data from specially structured file directly
-into a \code{CMData} object. There are two basic data format options:  etiher the counts of responses of all categories are given (and the
+into a \code{CMData} object. There are two basic data format options:  either the counts of responses of all categories are given (and the
 cluster size is the sum of these counts), or  the total cluster size is given with the counts of all but one category.
 The first column should always give the treatment group, then either the counts for each category (first option, chosen by setting 
 \code{with.clustersize = FALSE}), or the size of the cluster followed by the counts for all but one category (second option,

@@ -30,11 +30,11 @@
 #'data(shelltox)
 #'sh.mc <- mc.est(shelltox)
 #'
-#'library(lattice)
+#'if (require(lattice)){
 #'xyplot(Prob~NResp|factor(ClusterSize), groups=Trt, data=sh.mc, subset=ClusterSize>0, 
 #'    type="l", as.table=TRUE, auto.key=list(columns=4, lines=TRUE, points=FALSE),
 #'    xlab="Number of responses", ylab="Probability P(R=r|N=n)")
-#'
+#'}
 #'@name mc.est
 
 mc.est <- function(object,...) UseMethod("mc.est")

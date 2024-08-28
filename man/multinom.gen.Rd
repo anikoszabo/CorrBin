@@ -43,6 +43,6 @@ They should have \emph{K-1} dimensions for a \emph{K}-variate multinomial.
 For \bold{mg.MixMult}: the \code{param} list should be \code{list(q=...,m=...)}, 
 in which the vector of mixture probabilities \code{q} and the matrix \code{m}
 of logit-transformed means of each component are passed.
-For a \emph{K}-variate multinomial, the matrix{m} should have \emph{K-1} columns
+For a \emph{K}-variate multinomial, the matrix \code{m} should have \emph{K-1} columns
 and \code{length(q)} rows.
 }

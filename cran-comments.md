@@ -1,5 +1,13 @@
 
-## Submission
+## Submission August 2024
+
+* This is a new release with a minor update
+
+* Follows 8/24/2024 warning that the 'geepack' package will be archived. This package has now been moved to the Suggested list
+
+* R CMD check returned 0 errors, 0 warnings, 0 notes
+
+## Submission August 2023
 
 * This is a new release
 
