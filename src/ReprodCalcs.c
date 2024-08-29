@@ -285,12 +285,12 @@ int **CalcTopD(SEXP D, SEXP S, int *idx, int limit, int *nselect, int ntrt, int 
          
      nmx = imin2(limit, nmx);
 
-         res = (int**) Calloc(nmx, int*);
+         res =  malloc(nmx*sizeof(int*));
          pos = 0;
      for (i=0; i<nS; i++){
              if (pos >= nmx) break;
              if (REAL(D)[idx[i]] < dcut) continue;
-             res[pos] =(int*) Calloc(ntrt, int);  //copy the ith row of S
+             res[pos] =calloc(ntrt, sizeof(int));  //copy the ith row of S
              for (j=0, start=0; j<ntrt; j++, start+=nS) res[pos][j] = INTEGER(S)[start+i];
              pos++;
      }
@@ -478,10 +478,10 @@ SEXP ReprodISDM(SEXP Q, SEXP S, SEXP tab, SEXP MaxIter, SEXP MaxDirections,
          
          if (nmax == limit) nenforced++;
          
-         gamma = (double*) Calloc(nmax, double); 
-         lower = (double*) Calloc(nmax, double); 
-         upper = (double*) Calloc(nmax, double); 
-         boundtype = (int*) Calloc(nmax, int); 
+         gamma = calloc(nmax, sizeof(double)); 
+         lower = calloc(nmax, sizeof(double)); 
+         upper = calloc(nmax, sizeof(double)); 
+         boundtype = calloc(nmax, sizeof(int)); 
          
          for (i=0; i<nmax; i++){
                  gamma[i] = 0;
@@ -502,14 +502,14 @@ SEXP ReprodISDM(SEXP Q, SEXP S, SEXP tab, SEXP MaxIter, SEXP MaxDirections,
            Rprintf("Step %d, rel.error=%f, NLL=%f\n", niter, rel_error, NLLmin);
 
                  
-         Free(gamma);
-         Free(lower);
-         Free(upper);
-         Free(boundtype);
+         free(gamma);
+         free(lower);
+         free(upper);
+         free(boundtype);
          for (i=0; i<nmax; i++){
-                 Free(lmS[i]);
+                 free(lmS[i]);
          }
-         Free(lmS);
+         free(lmS);
          free(lmS_idx);
  }
  

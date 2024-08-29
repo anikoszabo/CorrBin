@@ -1241,12 +1241,12 @@ The number $m$ of the selected vectors is returned through the pointer
 \mbox{}\verb@         @\\
 \mbox{}\verb@     nmx = imin2(limit, nmx);@\\
 \mbox{}\verb@@\\
-\mbox{}\verb@         res = (int**) Calloc(nmx, int*);@\\
+\mbox{}\verb@         res =  malloc(nmx*sizeof(int*));@\\
 \mbox{}\verb@         pos = 0;@\\
 \mbox{}\verb@     for (i=0; i<nS; i++){@\\
 \mbox{}\verb@             if (pos >= nmx) break;@\\
 \mbox{}\verb@             if (REAL(D)[idx[i]] < dcut) continue;@\\
-\mbox{}\verb@             res[pos] =(int*) Calloc(ntrt, int);  //copy the ith row of S@\\
+\mbox{}\verb@             res[pos] =calloc(ntrt, sizeof(int));  //copy the ith row of S@\\
 \mbox{}\verb@             for (j=0, start=0; j<ntrt; j++, start+=nS) res[pos][j] = INTEGER(S)[start+i];@\\
 \mbox{}\verb@             pos++;@\\
 \mbox{}\verb@     }@\\
@@ -1585,10 +1585,10 @@ by the log-likelihood function and its derivative are declared global.
 \mbox{}\verb@         @\\
 \mbox{}\verb@         if (nmax == limit) nenforced++;@\\
 \mbox{}\verb@         @\\
-\mbox{}\verb@         gamma = (double*) Calloc(nmax, double); @\\
-\mbox{}\verb@         lower = (double*) Calloc(nmax, double); @\\
-\mbox{}\verb@         upper = (double*) Calloc(nmax, double); @\\
-\mbox{}\verb@         boundtype = (int*) Calloc(nmax, int); @\\
+\mbox{}\verb@         gamma = calloc(nmax, sizeof(double)); @\\
+\mbox{}\verb@         lower = calloc(nmax, sizeof(double)); @\\
+\mbox{}\verb@         upper = calloc(nmax, sizeof(double)); @\\
+\mbox{}\verb@         boundtype = calloc(nmax, sizeof(int)); @\\
 \mbox{}\verb@         @\\
 \mbox{}\verb@         for (i=0; i<nmax; i++){@\\
 \mbox{}\verb@                 gamma[i] = 0;@\\
@@ -1609,14 +1609,14 @@ by the log-likelihood function and its derivative are declared global.
 \mbox{}\verb@           Rprintf("Step %d, rel.error=%f, NLL=%f\n", niter, rel_error, NLLmin);@\\
 \mbox{}\verb@@\\
 \mbox{}\verb@                 @\\
-\mbox{}\verb@         Free(gamma);@\\
-\mbox{}\verb@         Free(lower);@\\
-\mbox{}\verb@         Free(upper);@\\
-\mbox{}\verb@         Free(boundtype);@\\
+\mbox{}\verb@         free(gamma);@\\
+\mbox{}\verb@         free(lower);@\\
+\mbox{}\verb@         free(upper);@\\
+\mbox{}\verb@         free(boundtype);@\\
 \mbox{}\verb@         for (i=0; i<nmax; i++){@\\
-\mbox{}\verb@                 Free(lmS[i]);@\\
+\mbox{}\verb@                 free(lmS[i]);@\\
 \mbox{}\verb@         }@\\
-\mbox{}\verb@         Free(lmS);@\\
+\mbox{}\verb@         free(lmS);@\\
 \mbox{}\verb@         free(lmS_idx);@\\
 \mbox{}\verb@ }@\\
 \mbox{}\verb@ @\\

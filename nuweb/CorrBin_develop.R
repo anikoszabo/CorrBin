@@ -26,6 +26,13 @@ load_all()
 build()
 check(check_dir = "c:/TEMP", cran = TRUE, manual = TRUE, remote = TRUE)
 
+# emulate strict check
+library(pkgbuild)
+with_debug(
+  check(check_dir = "c:/TEMP", cran = TRUE, manual = TRUE, remote = TRUE),
+  CFLAGS = paste(compiler_flags()["CFLAGS"], '-DSTRICT_R_HEADERS=1')
+)
+
 release_checks()
 spell_check()
 
